@@ -7,7 +7,6 @@ import {
   Settings,
   User,
   Users2,
-  ReceiptIndianRupee,
   ClipboardList,
   MapPin,
 } from 'lucide-react';
@@ -19,7 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { billTypes } from '@/lib/constants';
 import { useSociety } from '@/contexts/society-context';
 
 export function HeaderContent() {
@@ -36,8 +34,24 @@ export function HeaderContent() {
                 <h1 className="text-xl font-bold tracking-tight">
                   {society.name}
                 </h1>
-                <div className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                  Active
+                <div
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                    society.status === 'active'
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : society.status === 'pending'
+                        ? 'bg-yellow-50 text-yellow-700'
+                        : society.status === 'inactive'
+                          ? 'bg-red-50 text-red-700'
+                          : 'bg-gray-50 text-gray-700'
+                  }`}
+                >
+                  {society.status === 'active'
+                    ? 'Active'
+                    : society.status === 'pending'
+                      ? 'Pending'
+                      : society.status === 'inactive'
+                        ? 'Inactive'
+                        : society.status}
                 </div>
               </div>
               <div className="flex gap-4 text-sm text-muted-foreground">

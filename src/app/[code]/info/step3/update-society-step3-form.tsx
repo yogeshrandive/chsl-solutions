@@ -16,6 +16,7 @@ import {
   headingSchema,
   HeadingFormData,
   SocietyHeading,
+  Society,
 } from '@/models/societyDefinations';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -48,9 +49,11 @@ import {
 
 export function UpdateSocietyStep3Form({
   societyId,
+  societyData,
   globalHeadings,
 }: {
   societyId: string;
+  societyData: Society;
   globalHeadings: GlobalHeading[];
 }) {
   const router = useRouter();
@@ -155,7 +158,7 @@ export function UpdateSocietyStep3Form({
         toast({
           description: 'Progress saved successfully!',
         });
-        router.push(`/society/${societyId}/step4`);
+        router.push(`/${societyData.code}/info/step4`);
       } catch (error) {
         console.error('Error updating society step:', error);
         toast({

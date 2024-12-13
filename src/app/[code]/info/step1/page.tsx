@@ -10,38 +10,34 @@ import {
   BreadcrumbPage,
 } from '@/components/ui/breadcrumb';
 import { Slash } from 'lucide-react';
-import { SocietyFormTabs } from '../../society-form-tab';
+import { SocietyFormTabs } from '../society-form-tab';
 import { UpdateSocietyForm } from './update-society-form';
-import { getSocietyById } from '@/models/society';
+import { getSocietyByCode } from '@/models/society';
 import { getUserDetails } from '@/lib/dal';
 import { Suspense } from 'react';
-import SocietyStep1Loading from './loading';
-import { getStates } from '../../create/actions';
+import InfoStep1Loading from './loading';
+import { getStates } from '@/app/society/create/actions';
 
-export default async function UpdateSocietyStep1({
+export default async function InfoStep1Page({
   params,
 }: {
-  params: { id: string };
+  params: { code: string };
 }) {
   return (
-    <Suspense fallback={<SocietyStep1Loading />}>
-      <UpdateSocietyStep1Content params={params} />
+    <Suspense fallback={<InfoStep1Loading />}>
+      <InfoStep1Content params={params} />
     </Suspense>
   );
 }
 
-async function UpdateSocietyStep1Content({
-  params,
-}: {
-  params: { id: string };
-}) {
+async function InfoStep1Content({ params }: { params: { code: string } }) {
   const user = await getUserDetails();
   if (!user) {
     redirect('/login');
   }
 
-  const { id } = params;
-  const society = await getSocietyById(parseInt(id));
+  const { code } = await params;
+  const society = await getSocietyByCode(code);
   if (!society) {
     redirect('/society');
   }
@@ -54,7 +50,9 @@ async function UpdateSocietyStep1Content({
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/society">All Societies</BreadcrumbLink>
+              <BreadcrumbLink href={`/${code}/dashboard`}>
+                Dashboard
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator>
               <Slash />

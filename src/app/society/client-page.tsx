@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { PlusCircle, Edit, Trash2, Search, Settings } from 'lucide-react';
+import { PlusCircle, Search, Settings } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/status-badge';
 import Link from 'next/link';
@@ -38,9 +38,9 @@ export default function SocietiesClientPage({
     router.replace(`${pathname}?${params.toString()}`);
   }, 300);
 
-  const handleManage = async (society: Society) => {
-    router.push(`/${society.code}/dashboard`);
-  };
+  // const handleManage = async (society: Society) => {
+  //   router.push(`/${society.code}/dashboard`);
+  // };
 
   return (
     <div className="space-y-6">
@@ -96,7 +96,11 @@ export default function SocietiesClientPage({
                     society.cur_period_to
                   )}
                 </TableCell>
-                <TableCell>{formatDate(society.next_bill_date)}</TableCell>
+                <TableCell>
+                  {society.next_bill_date
+                    ? formatDate(society.next_bill_date)
+                    : '-'}
+                </TableCell>
                 <TableCell>
                   {/* <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(society.status)}`}
@@ -107,26 +111,18 @@ export default function SocietiesClientPage({
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    {society.status.toLowerCase() === 'active' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleManage(society)}
+                    <Button variant="outline" size="sm" asChild>
+                      <Link
+                        href={
+                          society.status.toLowerCase() === 'active'
+                            ? `/${society.code}/dashboard`
+                            : `/${society.code}/info/step${society.step}`
+                        }
                       >
                         <Settings className="h-4 w-4 mr-2" />
                         Manage
-                      </Button>
-                    )}
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/society/${society.id}/step1`}>
-                        <Edit className="h-4 w-4" />
                       </Link>
                     </Button>
-                    {society.status.toLowerCase() === 'pending' && (
-                      <Button variant="outline" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
                 </TableCell>
               </TableRow>

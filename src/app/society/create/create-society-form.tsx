@@ -33,7 +33,6 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
   const [states, setStates] = useState<{ id: number; name: string }[]>([]);
   const [cities, setCities] = useState<{ id: number; name: string }[]>([]);
 
-  console.log(tenantId);
   useEffect(() => {
     getStates().then(setStates);
   }, []);

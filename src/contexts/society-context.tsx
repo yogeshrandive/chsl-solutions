@@ -13,6 +13,8 @@ interface SocietyContextType {
     reg_no: string;
     bill_type: string;
     total_members: number;
+    status: string;
+    step: number;
   } | null;
 }
 

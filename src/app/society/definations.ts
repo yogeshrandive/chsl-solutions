@@ -15,4 +15,18 @@ export const SocietySchema = z.object({
   regi_no: z.string(),
 });
 
-export type Society = z.infer<typeof SocietySchema>;
+export interface Society {
+  id: number;
+  name: string;
+  code: string;
+  id_tenant: number;
+  status: string;
+  address: string | null;
+  bill_lot: number;
+  bill_type: string;
+  cur_period_from: string;
+  cur_period_to: string;
+  next_bill_date: string | null;
+  regi_no: string | null;
+  step: number;
+}

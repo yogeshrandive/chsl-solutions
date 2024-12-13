@@ -1,4 +1,5 @@
-'use server';
+import { Suspense } from 'react';
+import InfoStep2Loading from './loading';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -10,43 +11,34 @@ import {
   BreadcrumbPage,
 } from '@/components/ui/breadcrumb';
 import { Slash } from 'lucide-react';
-import { SocietyFormTabs } from '../../society-form-tab';
-import { UpdateSocietyForm } from './update-society-form';
-import { getSocietyById } from '@/models/society';
+import { SocietyFormTabs } from '../society-form-tab';
+import { UpdateSocietyStep2Form } from './update-society-step2-form';
 import { getUserDetails } from '@/lib/dal';
-import { Suspense } from 'react';
-import SocietyStep1Loading from './loading';
-import { getStates } from '../../create/actions';
+import { getSocietyByCode } from '@/models/society';
 
-export default async function UpdateSocietyStep1({
+export default async function InfoStep2Page({
   params,
 }: {
-  params: { id: string };
+  params: { code: string };
 }) {
   return (
-    <Suspense fallback={<SocietyStep1Loading />}>
-      <UpdateSocietyStep1Content params={params} />
+    <Suspense fallback={<InfoStep2Loading />}>
+      <InfoStep2Content params={params} />
     </Suspense>
   );
 }
 
-async function UpdateSocietyStep1Content({
-  params,
-}: {
-  params: { id: string };
-}) {
+async function InfoStep2Content({ params }: { params: { code: string } }) {
   const user = await getUserDetails();
   if (!user) {
     redirect('/login');
   }
 
-  const { id } = params;
-  const society = await getSocietyById(parseInt(id));
+  const { code } = await params;
+  const society = await getSocietyByCode(code);
   if (!society) {
     redirect('/society');
   }
-
-  const states = await getStates();
 
   return (
     <div>
@@ -54,7 +46,9 @@ async function UpdateSocietyStep1Content({
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/society">All Societies</BreadcrumbLink>
+              <BreadcrumbLink href={`/${code}/dashboard`}>
+                Dashboard
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator>
               <Slash />
@@ -67,15 +61,11 @@ async function UpdateSocietyStep1Content({
       </div>
       <Card>
         <CardHeader className="pt-1">
-          <SocietyFormTabs currentStep={society.step} formStep={1} />
+          <SocietyFormTabs currentStep={society.step} formStep={2} />
         </CardHeader>
         <CardContent className="max-w-[1050px] mx-auto items-center justify-center">
           <div className="grid w-full gap-4">
-            <UpdateSocietyForm
-              userData={user}
-              societyData={society}
-              states={states}
-            />
+            <UpdateSocietyStep2Form societyData={society} />
           </div>
         </CardContent>
       </Card>

@@ -28,13 +28,13 @@ export function MainSidebar() {
   const societyCode = params.code as string;
 
   const filteredMenuRules = menuRules;
-  // .filter((item) => {
-  //   if (item.requiresSociety && !society) return false;
-  //   return true;
-  // });
-
+  // console.log(filteredMenuRules);
   const isActive = (item: MenuItem) => {
-    return item.matchPaths.some((path: string) => pathname.startsWith(path));
+    // Remove society code from pathname for matching
+    const pathWithoutSocietyCode = pathname.replace(`/${societyCode}`, '');
+    return item.matchPaths.some((path: string) =>
+      pathWithoutSocietyCode.startsWith(path)
+    );
   };
 
   return (

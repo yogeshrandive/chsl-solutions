@@ -53,3 +53,12 @@ export const SOCIETY_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
 };
+
+export const HEAD_TYPES = [
+  { value: 'liabilities', label: 'Liability' },
+  { value: 'assets', label: 'Assets' },
+  { value: 'incomes', label: 'Income' },
+  { value: 'expenses', label: 'Expense' },
+];
+
+export type HeadType = 'liabilities' | 'assets' | 'incomes' | 'expenses';

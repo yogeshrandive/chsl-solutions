@@ -13,7 +13,7 @@ import {
 import { Tables } from '@/utils/supabase/database.types';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { SOCIETY_STATUS } from '@/lib/constants';
+// import { SOCIETY_STATUS } from '@/lib/constants';
 
 export type ActionState = {
   error_message?: string;
@@ -45,17 +45,16 @@ export async function getSocietyById(
 export async function getSocietyByCode(
   societyCode: string
 ): Promise<Tables<'societies'> | null> {
-  console.log('called');
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('societies')
     .select('*')
     .eq('code', societyCode)
-    .eq('status', SOCIETY_STATUS.ACTIVE)
+    // .eq('status', SOCIETY_STATUS.ACTIVE)
     .select();
 
   if (error) {
-    console.error('Error fetching society data:', error);
+    console.error('Error fetching society data using code:', error);
     return null;
   }
 
@@ -140,8 +139,8 @@ export async function updateSocietyStep1(
     return { error_message: 'Failed to update society' };
   }
 
-  revalidatePath(`/society/${idSociety}/step1`);
-  redirect(`/society/${idSociety}/step2`);
+  revalidatePath(`/${societyData.code}/info/step1`);
+  redirect(`/${societyData.code}/info/step2`);
 }
 // Step 2
 export async function updateSocietyStep2(
@@ -190,8 +189,8 @@ export async function updateSocietyStep2(
     return { error_message: 'Failed to update society' };
   }
 
-  revalidatePath(`/society/${idSociety}/step2`);
-  redirect(`/society/${idSociety}/step3`);
+  revalidatePath(`/${societyData.code}/info/step2`);
+  redirect(`/${societyData.code}/info/step3`);
 }
 
 export async function getTenantSocieties(
@@ -370,7 +369,7 @@ export async function updateSocietyStep4(
 
     if (error) throw error;
 
-    revalidatePath('/society');
+    revalidatePath(`/${societyData.code}/info/step4`);
     return { message: 'Rebate settings updated successfully' };
   } catch (error) {
     console.error('Error updating rebate settings:', error);
@@ -432,6 +431,11 @@ export async function updateSocietyStep5(
 ) {
   const supabase = await createClient();
 
+  const societyData = await getSocietyById(Number(societyId));
+  if (!societyData) {
+    return { error_message: 'Society not found' };
+  }
+
   try {
     const { error } = await supabase
       .from('societies')
@@ -443,7 +447,7 @@ export async function updateSocietyStep5(
 
     if (error) throw error;
 
-    revalidatePath('/society');
+    revalidatePath(`/${societyData.code}/info/step5`);
     return { message: 'Penalty settings updated successfully' };
   } catch (error) {
     console.error('Error updating penalty settings:', error);

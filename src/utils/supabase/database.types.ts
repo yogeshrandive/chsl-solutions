@@ -64,6 +64,38 @@ export type Database = {
           },
         ];
       };
+      global_heading_groups: {
+        Row: {
+          description: string | null;
+          head: Database['public']['Enums']['account_heads'];
+          id: number;
+          id_parent: number | null;
+          name: string;
+        };
+        Insert: {
+          description?: string | null;
+          head?: Database['public']['Enums']['account_heads'];
+          id?: number;
+          id_parent?: number | null;
+          name: string;
+        };
+        Update: {
+          description?: string | null;
+          head?: Database['public']['Enums']['account_heads'];
+          id?: number;
+          id_parent?: number | null;
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'global_heading_groups_id_parent_fkey';
+            columns: ['id_parent'];
+            isOneToOne: false;
+            referencedRelation: 'global_heading_groups';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       global_headings: {
         Row: {
           code: string;
@@ -645,6 +677,70 @@ export type Database = {
           },
         ];
       };
+      society_account_master: {
+        Row: {
+          code: string;
+          created_at: string;
+          id: number;
+          id_group: number;
+          id_society: number | null;
+          id_sub_group: number | null;
+          ly_balance: number;
+          ly_type: Database['public']['Enums']['transaction_type'] | null;
+          name: string;
+          op_balance: number;
+          op_type: Database['public']['Enums']['transaction_type'] | null;
+        };
+        Insert: {
+          code: string;
+          created_at?: string;
+          id?: number;
+          id_group: number;
+          id_society?: number | null;
+          id_sub_group?: number | null;
+          ly_balance?: number;
+          ly_type?: Database['public']['Enums']['transaction_type'] | null;
+          name: string;
+          op_balance?: number;
+          op_type?: Database['public']['Enums']['transaction_type'] | null;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          id?: number;
+          id_group?: number;
+          id_society?: number | null;
+          id_sub_group?: number | null;
+          ly_balance?: number;
+          ly_type?: Database['public']['Enums']['transaction_type'] | null;
+          name?: string;
+          op_balance?: number;
+          op_type?: Database['public']['Enums']['transaction_type'] | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'society_account_master_id_group_fkey';
+            columns: ['id_group'];
+            isOneToOne: false;
+            referencedRelation: 'society_heading_groups';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'society_account_master_id_society_fkey';
+            columns: ['id_society'];
+            isOneToOne: false;
+            referencedRelation: 'societies';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'society_account_master_id_sub_group_fkey';
+            columns: ['id_sub_group'];
+            isOneToOne: false;
+            referencedRelation: 'society_heading_groups';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       society_bills: {
         Row: {
           bill_date: string | null;
@@ -701,6 +797,133 @@ export type Database = {
             columns: ['id_tenant'];
             isOneToOne: false;
             referencedRelation: 'tenants';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      society_book_master: {
+        Row: {
+          acc_no: string | null;
+          address: string | null;
+          branch_name: string | null;
+          code: string;
+          created_at: string;
+          id: number;
+          id_group: number;
+          id_society: number;
+          id_sub_group: number | null;
+          ifsc_code: string | null;
+          is_collection_acount: boolean;
+          ly_balance: number;
+          ly_type: Database['public']['Enums']['transaction_type'] | null;
+          name: string;
+          op_balance: number;
+          op_type: Database['public']['Enums']['transaction_type'] | null;
+          phone_no: string | null;
+          type: Database['public']['Enums']['book_code_type'];
+        };
+        Insert: {
+          acc_no?: string | null;
+          address?: string | null;
+          branch_name?: string | null;
+          code: string;
+          created_at?: string;
+          id?: number;
+          id_group: number;
+          id_society: number;
+          id_sub_group?: number | null;
+          ifsc_code?: string | null;
+          is_collection_acount?: boolean;
+          ly_balance?: number;
+          ly_type?: Database['public']['Enums']['transaction_type'] | null;
+          name: string;
+          op_balance?: number;
+          op_type?: Database['public']['Enums']['transaction_type'] | null;
+          phone_no?: string | null;
+          type?: Database['public']['Enums']['book_code_type'];
+        };
+        Update: {
+          acc_no?: string | null;
+          address?: string | null;
+          branch_name?: string | null;
+          code?: string;
+          created_at?: string;
+          id?: number;
+          id_group?: number;
+          id_society?: number;
+          id_sub_group?: number | null;
+          ifsc_code?: string | null;
+          is_collection_acount?: boolean;
+          ly_balance?: number;
+          ly_type?: Database['public']['Enums']['transaction_type'] | null;
+          name?: string;
+          op_balance?: number;
+          op_type?: Database['public']['Enums']['transaction_type'] | null;
+          phone_no?: string | null;
+          type?: Database['public']['Enums']['book_code_type'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'society_book_master_id_group_fkey';
+            columns: ['id_group'];
+            isOneToOne: false;
+            referencedRelation: 'society_heading_groups';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'society_book_master_id_society_fkey';
+            columns: ['id_society'];
+            isOneToOne: false;
+            referencedRelation: 'societies';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'society_book_master_id_sub_group_fkey';
+            columns: ['id_sub_group'];
+            isOneToOne: false;
+            referencedRelation: 'society_heading_groups';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      society_heading_groups: {
+        Row: {
+          description: string | null;
+          head: Database['public']['Enums']['account_heads'];
+          id: number;
+          id_parent: number | null;
+          id_society: number;
+          name: string;
+        };
+        Insert: {
+          description?: string | null;
+          head?: Database['public']['Enums']['account_heads'];
+          id?: number;
+          id_parent?: number | null;
+          id_society?: number;
+          name: string;
+        };
+        Update: {
+          description?: string | null;
+          head?: Database['public']['Enums']['account_heads'];
+          id?: number;
+          id_parent?: number | null;
+          id_society?: number;
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'society_heading_groups_id_parent_fkey1';
+            columns: ['id_parent'];
+            isOneToOne: false;
+            referencedRelation: 'society_heading_groups';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'society_heading_groups_id_society_fkey';
+            columns: ['id_society'];
+            isOneToOne: false;
+            referencedRelation: 'societies';
             referencedColumns: ['id'];
           },
         ];
@@ -843,7 +1066,9 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      account_heads: 'assets' | 'liabilities' | 'incomes' | 'expenses';
+      book_code_type: 'bank' | 'cash';
+      transaction_type: 'credit' | 'debit';
     };
     CompositeTypes: {
       [_ in never]: never;
