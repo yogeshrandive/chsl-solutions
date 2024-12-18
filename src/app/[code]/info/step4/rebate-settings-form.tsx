@@ -9,51 +9,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { PencilIcon } from 'lucide-react';
 import {
   rebateSettingsSchema,
   RebateSettings,
-  SocietyHeading,
   Society,
 } from '@/models/societyDefinations';
-import {
-  updateSocietyStep4,
-  fetchRebateSettings,
-  getSocietyHeadings,
-  updateHeadingRebate,
-} from '@/models/society';
+import { updateSocietyStep4, fetchRebateSettings } from '@/models/society';
 
 export function RebateSettingsForm({
   societyId,
   societyData,
 }: {
-  societyId: string;
+  societyId: number;
   societyData: Society;
 }) {
   const router = useRouter();
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(true);
-  const [societyHeadings, setSocietyHeadings] = useState<SocietyHeading[]>([]);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingHeading, setEditingHeading] = useState<SocietyHeading | null>(
-    null
-  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<RebateSettings>({
     resolver: zodResolver(rebateSettingsSchema),
@@ -87,22 +60,6 @@ export function RebateSettingsForm({
         setValue('rebate_percentage', data.rebate_percentage);
       }
     });
-    getSocietyHeadings(societyData.id).then((headings) => {
-      setSocietyHeadings(
-        headings.map((h) => ({
-          id: h.id,
-          id_society: h.id_society,
-          code: h.code,
-          name: h.name,
-          amount: h.amount,
-          created_at: h.created_at,
-          is_interest: h.is_interest,
-          is_gst: h.is_gst,
-          rebate_amount: h.rebate_amount || 0,
-          rebate_percentage: h.rebate_percentage || 0,
-        }))
-      );
-    });
   }, [societyId, setValue]);
 
   const onSubmit = async (data: RebateSettings) => {
@@ -120,6 +77,7 @@ export function RebateSettingsForm({
         title: 'Success',
         description: 'Rebate settings updated successfully!',
       });
+
       router.push(`/${societyData.code}/info/step5`);
     } catch (error) {
       console.error('Error updating rebate settings:', error);
@@ -130,50 +88,6 @@ export function RebateSettingsForm({
       });
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleEditHeading = (heading: SocietyHeading) => {
-    setEditingHeading(heading);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleUpdateHeading = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingHeading) return;
-
-    try {
-      await updateHeadingRebate(editingHeading.id, {
-        rebate_amount: editingHeading.rebate_amount || 0,
-        rebate_percentage: editingHeading.rebate_percentage || 0,
-      });
-      toast({
-        title: 'Heading updated successfully!',
-        description: 'You can now proceed to the next step.',
-      });
-      setIsEditDialogOpen(false);
-      getSocietyHeadings(societyData.id).then((headings) => {
-        setSocietyHeadings(
-          headings.map((h) => ({
-            id: h.id,
-            id_society: h.id_society,
-            code: h.code,
-            name: h.name,
-            amount: h.amount,
-            created_at: h.created_at,
-            is_interest: h.is_interest,
-            is_gst: h.is_gst,
-            rebate_amount: h.rebate_amount || 0,
-            rebate_percentage: h.rebate_percentage || 0,
-          }))
-        );
-      });
-    } catch (error) {
-      console.error('Error updating heading:', error);
-      toast({
-        title: 'Failed to update heading',
-        description: 'Please try again.',
-      });
     }
   };
 
@@ -218,7 +132,7 @@ export function RebateSettingsForm({
                   onValueChange={(value) =>
                     setValue(
                       'rebate_type',
-                      value as 'fixed_amount' | 'fixed_per' | 'manual'
+                      value as 'fixed_amount' | 'fixed_per'
                     )
                   }
                   className="flex space-x-4"
@@ -230,10 +144,6 @@ export function RebateSettingsForm({
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="fixed_per" id="fixed_per" />
                     <Label htmlFor="fixed_per">Fixed Percentage</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="manual" id="manual" />
-                    <Label htmlFor="manual">Manual</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -277,41 +187,6 @@ export function RebateSettingsForm({
                   )}
                 </div>
               )}
-
-              {rebateType === 'manual' && (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Code</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Rebate Amount</TableHead>
-                      <TableHead>Rebate Percentage</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {societyHeadings.map((heading) => (
-                      <TableRow key={heading.id}>
-                        <TableCell>{heading.code}</TableCell>
-                        <TableCell>{heading.name}</TableCell>
-                        <TableCell>{heading.rebate_amount}</TableCell>
-                        <TableCell>{heading.rebate_percentage}%</TableCell>
-                        <TableCell>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditHeading(heading)}
-                          >
-                            <PencilIcon className="h-4 w-4 mr-2" />
-                            Edit
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
             </>
           )}
         </div>
@@ -319,7 +194,7 @@ export function RebateSettingsForm({
         <div className="flex justify-between">
           <Button
             type="button"
-            onClick={() => router.push(`/society/${societyId}/step3`)}
+            onClick={() => router.push(`/${societyData.code}/info/step3`)}
             variant="outline"
           >
             Previous
@@ -333,57 +208,6 @@ export function RebateSettingsForm({
           </Button>
         </div>
       </form>
-
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Heading Rebate</DialogTitle>
-            <DialogDescription>
-              Update the rebate amount and percentage for this heading.
-            </DialogDescription>
-          </DialogHeader>
-          {editingHeading && (
-            <form onSubmit={handleUpdateHeading} className="space-y-4">
-              <div>
-                <Label htmlFor="edit-rebate-amount">Rebate Amount</Label>
-                <Input
-                  id="edit-rebate-amount"
-                  type="number"
-                  step="0.01"
-                  value={editingHeading.rebate_amount || ''}
-                  onChange={(e) =>
-                    setEditingHeading({
-                      ...editingHeading,
-                      rebate_amount: parseFloat(e.target.value),
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-rebate-per">Rebate Percentage</Label>
-                <Input
-                  id="edit-rebate-per"
-                  type="number"
-                  step="0.01"
-                  value={editingHeading.rebate_percentage || ''}
-                  onChange={(e) =>
-                    setEditingHeading({
-                      ...editingHeading,
-                      rebate_percentage: parseFloat(e.target.value),
-                    })
-                  }
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                Update Heading
-              </Button>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

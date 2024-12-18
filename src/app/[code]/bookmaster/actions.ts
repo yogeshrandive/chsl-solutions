@@ -73,7 +73,6 @@ export async function createBookAction(
   } = validatedFields.data;
 
   try {
-    console.log(validatedFields.data);
     const existingBook = await getBookByCode(code, context.idSociety);
     if (existingBook) {
       return {

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { formSchema } from './definations';
 import { ActionState } from '@/models/society';
+import { Database } from '@/utils/supabase/database.types';
 
 async function checkSocietyCodeExists(code: string, tenantId: number) {
   const supabase = await createClient();
@@ -52,7 +53,7 @@ export async function createSociety(
     pan_no: formData.get('pan_no'),
     tan_no: formData.get('tan_no'),
     sac_code: formData.get('sac_code'),
-    bill_type: formData.get('bill_type'),
+    bill_frequency: formData.get('bill_frequency'),
     period_from: formData.get('period_from'),
     period_to: formData.get('period_to'),
     cur_period_from: formData.get('cur_period_from'),
@@ -88,21 +89,21 @@ export async function createSociety(
 
   const { data: society, error } = await supabase
     .from('societies')
-    .insert([
-      {
-        ...rest,
-        code: code.toUpperCase(),
-        period_from: period_from,
-        period_to: period_to,
-        cur_period_to: cur_period_to,
-        cur_period_from: cur_period_from,
-        next_bill_date: next_bill_date,
-        step: 2,
-        id_tenant: Number(id_tenant),
-        status: 'pending',
-        created_by: user.id,
-      },
-    ])
+    .insert({
+      ...rest,
+      code: code.toUpperCase(),
+      period_from,
+      period_to,
+      cur_period_to,
+      cur_period_from,
+      next_bill_date,
+      step: 2,
+      id_tenant: Number(id_tenant),
+      status: 'pending',
+      created_by: user.id,
+      bill_frequency:
+        rest.bill_frequency as Database['public']['Enums']['bill_frequency'],
+    })
     .select()
     .single();
 
@@ -112,7 +113,7 @@ export async function createSociety(
   }
 
   revalidatePath('/society');
-  redirect(`/society/${society.id}/step2`);
+  redirect(`/${society.code}/info/step2`);
 }
 
 export async function getStates() {

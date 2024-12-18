@@ -16,7 +16,15 @@ import { Tables } from '@/utils/supabase/database.types';
 import { UploadDialog } from './upload-dialog';
 import { SocietyHeading } from './[id]/step3/definations';
 import { useRouter } from 'next/dist/client/components/navigation';
-// import { UploadDialog } from './upload-dialog';
+import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { updateMemberStatus } from '@/models/members';
+import { useToast } from '@/hooks/use-toast';
 
 export default function MembersClientPage({
   members,
@@ -31,6 +39,24 @@ export default function MembersClientPage({
 }) {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
+  const [isUpdating, setIsUpdating] = useState<number | null>(null);
+
+  const handleStatusUpdate = async (memberId: number, newStatus: string) => {
+    setIsUpdating(memberId);
+    try {
+      await updateMemberStatus(memberId, newStatus);
+      toast({ description: 'Status updated successfully' });
+      router.refresh();
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        description: (error as Error).message ?? 'Failed to update status',
+      });
+    } finally {
+      setIsUpdating(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -58,6 +84,7 @@ export default function MembersClientPage({
               <TableHead>Flat No</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -70,6 +97,45 @@ export default function MembersClientPage({
                 <TableCell>{member.flat_no}</TableCell>
                 <TableCell>{member.email}</TableCell>
                 <TableCell>{member.mobile}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        disabled={isUpdating === member.id}
+                      >
+                        <Badge
+                          variant={
+                            member.status === 'active'
+                              ? 'default'
+                              : 'destructive'
+                          }
+                        >
+                          {isUpdating === member.id
+                            ? 'Updating...'
+                            : member.status}
+                        </Badge>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleStatusUpdate(member.id, 'active')}
+                        disabled={member.status === 'active'}
+                      >
+                        Set as Active
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          handleStatusUpdate(member.id, 'inactive')
+                        }
+                        disabled={member.status === 'inactive'}
+                      >
+                        Set as Inactive
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
                 <TableCell>
                   <Button variant="outline" size="sm" asChild>
                     <Link href={`/${societyCode}/members/${member.id}/step1`}>

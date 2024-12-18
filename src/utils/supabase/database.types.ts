@@ -499,15 +499,17 @@ export type Database = {
       societies: {
         Row: {
           address: string | null;
+          bill_frequency: Database['public']['Enums']['bill_frequency'];
           bill_generation_date: number | null;
           bill_lot: number;
           bill_no: number;
-          bill_type: string;
           code: string;
-          conditions: Json | null;
+          comments: string[] | null;
           created_at: string;
           created_by: string | null;
-          credit_adj_first: string | null;
+          credit_adj_first:
+            | Database['public']['Enums']['credit_adj_first']
+            | null;
           cur_period_from: string;
           cur_period_to: string;
           email: string | null;
@@ -517,10 +519,10 @@ export type Database = {
           id_city: number;
           id_state: number;
           id_tenant: number;
-          interest_free_arrears: number | null;
           interest_min_rs: number | null;
+          interest_period: Database['public']['Enums']['interest_period'];
           interest_rate: number | null;
-          interest_type: string | null;
+          interest_type: Database['public']['Enums']['interest_type'];
           location: string | null;
           name: string;
           next_bill_date: string | null;
@@ -532,7 +534,6 @@ export type Database = {
           penalty_on_bill_exceed: number | null;
           penalty_percentage: number | null;
           period_from: string;
-          period_of_calculation: string | null;
           period_to: string;
           phone_number: string | null;
           pin_code: number | null;
@@ -551,15 +552,17 @@ export type Database = {
         };
         Insert: {
           address?: string | null;
+          bill_frequency?: Database['public']['Enums']['bill_frequency'];
           bill_generation_date?: number | null;
           bill_lot?: number;
           bill_no?: number;
-          bill_type?: string;
           code: string;
-          conditions?: Json | null;
+          comments?: string[] | null;
           created_at?: string;
           created_by?: string | null;
-          credit_adj_first?: string | null;
+          credit_adj_first?:
+            | Database['public']['Enums']['credit_adj_first']
+            | null;
           cur_period_from: string;
           cur_period_to: string;
           email?: string | null;
@@ -569,10 +572,10 @@ export type Database = {
           id_city?: number;
           id_state?: number;
           id_tenant: number;
-          interest_free_arrears?: number | null;
           interest_min_rs?: number | null;
+          interest_period?: Database['public']['Enums']['interest_period'];
           interest_rate?: number | null;
-          interest_type?: string | null;
+          interest_type?: Database['public']['Enums']['interest_type'];
           location?: string | null;
           name: string;
           next_bill_date?: string | null;
@@ -584,7 +587,6 @@ export type Database = {
           penalty_on_bill_exceed?: number | null;
           penalty_percentage?: number | null;
           period_from: string;
-          period_of_calculation?: string | null;
           period_to: string;
           phone_number?: string | null;
           pin_code?: number | null;
@@ -603,15 +605,17 @@ export type Database = {
         };
         Update: {
           address?: string | null;
+          bill_frequency?: Database['public']['Enums']['bill_frequency'];
           bill_generation_date?: number | null;
           bill_lot?: number;
           bill_no?: number;
-          bill_type?: string;
           code?: string;
-          conditions?: Json | null;
+          comments?: string[] | null;
           created_at?: string;
           created_by?: string | null;
-          credit_adj_first?: string | null;
+          credit_adj_first?:
+            | Database['public']['Enums']['credit_adj_first']
+            | null;
           cur_period_from?: string;
           cur_period_to?: string;
           email?: string | null;
@@ -621,10 +625,10 @@ export type Database = {
           id_city?: number;
           id_state?: number;
           id_tenant?: number;
-          interest_free_arrears?: number | null;
           interest_min_rs?: number | null;
+          interest_period?: Database['public']['Enums']['interest_period'];
           interest_rate?: number | null;
-          interest_type?: string | null;
+          interest_type?: Database['public']['Enums']['interest_type'];
           location?: string | null;
           name?: string;
           next_bill_date?: string | null;
@@ -636,7 +640,6 @@ export type Database = {
           penalty_on_bill_exceed?: number | null;
           penalty_percentage?: number | null;
           period_from?: string;
-          period_of_calculation?: string | null;
           period_to?: string;
           phone_number?: string | null;
           pin_code?: number | null;
@@ -744,42 +747,60 @@ export type Database = {
       society_bills: {
         Row: {
           bill_date: string | null;
+          bill_frequency: Database['public']['Enums']['bill_frequency'];
           bill_lot: number;
           bill_period_from: string;
           bill_period_to: string;
+          comments: string[] | null;
           created_at: string;
+          credit_adj_first: Database['public']['Enums']['credit_adj_first'];
+          due_date: string;
           id: number;
           id_society: number;
           id_tenant: number;
-          notes: string[] | null;
+          interest_period: Database['public']['Enums']['interest_period'];
+          interest_rate: number;
+          interest_type: Database['public']['Enums']['interest_type'];
           start_bill_no: number;
           status: string;
           updated_at: string;
         };
         Insert: {
           bill_date?: string | null;
+          bill_frequency: Database['public']['Enums']['bill_frequency'];
           bill_lot: number;
           bill_period_from: string;
           bill_period_to: string;
+          comments?: string[] | null;
           created_at?: string;
+          credit_adj_first?: Database['public']['Enums']['credit_adj_first'];
+          due_date: string;
           id?: number;
           id_society: number;
           id_tenant: number;
-          notes?: string[] | null;
+          interest_period?: Database['public']['Enums']['interest_period'];
+          interest_rate: number;
+          interest_type?: Database['public']['Enums']['interest_type'];
           start_bill_no?: number;
           status?: string;
           updated_at?: string;
         };
         Update: {
           bill_date?: string | null;
+          bill_frequency?: Database['public']['Enums']['bill_frequency'];
           bill_lot?: number;
           bill_period_from?: string;
           bill_period_to?: string;
+          comments?: string[] | null;
           created_at?: string;
+          credit_adj_first?: Database['public']['Enums']['credit_adj_first'];
+          due_date?: string;
           id?: number;
           id_society?: number;
           id_tenant?: number;
-          notes?: string[] | null;
+          interest_period?: Database['public']['Enums']['interest_period'];
+          interest_rate?: number;
+          interest_type?: Database['public']['Enums']['interest_type'];
           start_bill_no?: number;
           status?: string;
           updated_at?: string;
@@ -931,41 +952,45 @@ export type Database = {
       society_headings: {
         Row: {
           amount: number;
-          code: string;
           created_at: string;
           id: number;
+          id_account_master: number;
           id_society: number;
           is_gst: boolean;
           is_interest: boolean;
-          name: string;
           rebate_amount: number;
           rebate_percentage: number | null;
         };
         Insert: {
           amount: number;
-          code: string;
           created_at?: string;
           id?: number;
+          id_account_master: number;
           id_society: number;
           is_gst?: boolean;
           is_interest?: boolean;
-          name: string;
           rebate_amount?: number;
           rebate_percentage?: number | null;
         };
         Update: {
           amount?: number;
-          code?: string;
           created_at?: string;
           id?: number;
+          id_account_master?: number;
           id_society?: number;
           is_gst?: boolean;
           is_interest?: boolean;
-          name?: string;
           rebate_amount?: number;
           rebate_percentage?: number | null;
         };
         Relationships: [
+          {
+            foreignKeyName: 'society_headings_id_account_master_fkey';
+            columns: ['id_account_master'];
+            isOneToOne: false;
+            referencedRelation: 'society_account_master';
+            referencedColumns: ['id'];
+          },
           {
             foreignKeyName: 'society_headings_id_society_fkey';
             columns: ['id_society'];
@@ -1067,7 +1092,22 @@ export type Database = {
     };
     Enums: {
       account_heads: 'assets' | 'liabilities' | 'incomes' | 'expenses';
+      bill_frequency:
+        | 'monthly'
+        | 'bi-monthly'
+        | 'quarterly'
+        | 'half-yearly'
+        | 'yearly';
       book_code_type: 'bank' | 'cash';
+      credit_adj_first: 'principle' | 'interest';
+      interest_period:
+        | 'daily'
+        | 'monthly'
+        | 'bi-monthly'
+        | 'quarterly'
+        | 'half-yearly'
+        | 'yearly';
+      interest_type: 'simple' | 'compound';
       transaction_type: 'credit' | 'debit';
     };
     CompositeTypes: {

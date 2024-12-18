@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { importDefaultHeadGroups } from './actions';
 
 interface HeadGroupClientPageProps {
   societyData: any;
@@ -47,6 +48,7 @@ export default function HeadGroupClientPage({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<any>(null);
   const [selectedHead, setSelectedHead] = useState<string>('all');
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   const getParentName = (parentId: number | null) => {
     if (!parentId) return 'Main';
@@ -97,32 +99,87 @@ export default function HeadGroupClientPage({
     selectedHead === 'all' ? true : group.head === selectedHead
   );
 
+  const handleCreateDefaultGroups = async () => {
+    try {
+      const result = await importDefaultHeadGroups(
+        societyData.id,
+        societyData.code
+      );
+
+      if (result.success) {
+        toast({
+          title: 'Success',
+          description: 'Default head groups imported successfully',
+        });
+        window.location.reload();
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: 'Failed to import default head groups: ' + error.message,
+        variant: 'destructive',
+      });
+    }
+    setImportDialogOpen(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Account Head Group</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Add New Group
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New Head Group</DialogTitle>
-              <DialogDescription>
-                Create a new account head group for your society. Fill in the
-                details below.
-              </DialogDescription>
-            </DialogHeader>
-            <AddHeadForm
-              societyData={societyData}
-              headGroups={headGroups}
-              onSuccess={() => setOpen(false)}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                Import Default Groups
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Import Default Groups</DialogTitle>
+                <DialogDescription>
+                  This will create default head groups for your society. Are you
+                  sure you want to continue?
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setImportDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateDefaultGroups}>
+                  Import Groups
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <PlusCircle className="h-4 w-4" />
+                Add New Group
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add New Head Group</DialogTitle>
+                <DialogDescription>
+                  Create a new account head group for your society. Fill in the
+                  details below.
+                </DialogDescription>
+              </DialogHeader>
+              <AddHeadForm
+                societyData={societyData}
+                headGroups={headGroups}
+                onSuccess={() => setOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">

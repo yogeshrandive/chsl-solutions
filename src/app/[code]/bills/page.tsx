@@ -1,13 +1,10 @@
-import { Suspense } from 'react';
-import { Loader2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BillGenerationForm } from './bill-generation-form';
-import { BillsTable } from './bills-table';
 import { redirect } from 'next/navigation';
 import { getUserDetails } from '@/lib/dal';
 import { getSocietyByCode } from '@/models/society';
+import { getBillsBySocietyId } from '@/models/societyBills';
+import BillsPage from './bill-page';
 
-export default async function BillsPage({
+export default async function BillsPageServer({
   params,
 }: {
   params: { code: string };
@@ -18,26 +15,10 @@ export default async function BillsPage({
   }
 
   const { code } = await params;
-
   const societyData = await getSocietyByCode(code);
   if (!societyData) redirect('/');
 
-  return (
-    <>
-      <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
-        <BillGenerationForm societyData={societyData} />
-      </Suspense>
+  const bills = await getBillsBySocietyId(societyData.id);
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Previous Bills</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
-            <BillsTable />
-          </Suspense>
-        </CardContent>
-      </Card>
-    </>
-  );
+  return <BillsPage params={params} societyData={societyData} bills={bills} />;
 }

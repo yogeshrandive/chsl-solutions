@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/select';
 import moment from 'moment';
 import { Tables } from '@/utils/supabase/database.types';
-import { billTypes } from '@/lib/constants';
+import { billFrequency } from '@/lib/constants';
 import { AppUser } from '@/lib/constants';
 import { getCitiesByState } from '@/app/society/create/actions';
 
@@ -50,7 +50,7 @@ export function UpdateSocietyForm({
   const form = useForm<Step1FormDataInterface>({
     resolver: zodResolver(step1FormSchema),
     defaultValues: {
-      ...(societyData as Step1FormDataInterface),
+      ...(societyData as unknown as Step1FormDataInterface),
     },
   });
 
@@ -69,9 +69,12 @@ export function UpdateSocietyForm({
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
-      if (name === 'bill_type' || name === 'cur_period_from') {
+      if (
+        (name as string) === 'bill_frequency' ||
+        (name as string) === 'cur_period_from'
+      ) {
         const curPeriodFrom = getValues('cur_period_from');
-        const watchBillType = getValues('bill_type');
+        const watchBillType = getValues('bill_frequency');
 
         const curPeriodDate = moment(curPeriodFrom, 'YYYY-MM-DD');
         let curPeriodTo = '';
@@ -504,14 +507,14 @@ export function UpdateSocietyForm({
           />
           <FormField
             control={form.control}
-            name="bill_type"
+            name="bill_frequency"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Bill Type</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  name="bill_type"
+                  name="bill_frequency"
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -519,7 +522,7 @@ export function UpdateSocietyForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {billTypes.map((type) => (
+                    {billFrequency.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         {type.label}
                       </SelectItem>
@@ -527,8 +530,8 @@ export function UpdateSocietyForm({
                   </SelectContent>
                 </Select>
                 <FormMessage>
-                  {formState?.error?.bill_type
-                    ? formState?.error?.bill_type
+                  {formState?.error?.bill_frequency
+                    ? formState?.error?.bill_frequency
                     : ''}
                 </FormMessage>
               </FormItem>

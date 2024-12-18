@@ -11,12 +11,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { PlusCircle, Search, Settings } from 'lucide-react';
+import { PlusCircle, Search, Settings, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/status-badge';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { useState } from 'react';
 
 export default function SocietiesClientPage({
   societies,
@@ -27,6 +35,7 @@ export default function SocietiesClientPage({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleSearch = useDebouncedCallback((term: string) => {
     const params = new URLSearchParams(filter);
@@ -38,17 +47,56 @@ export default function SocietiesClientPage({
     router.replace(`${pathname}?${params.toString()}`);
   }, 300);
 
-  // const handleManage = async (society: Society) => {
-  //   router.push(`/${society.code}/dashboard`);
-  // };
+  const handleCreateClick = () => {
+    setIsNavigating(true);
+  };
+
+  const CreateButton = () => (
+    <Button size="lg" asChild disabled={isNavigating}>
+      <Link href="/society/create" onClick={handleCreateClick}>
+        {isNavigating ? (
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        ) : (
+          <PlusCircle className="mr-2 h-5 w-5" />
+        )}
+        {isNavigating ? 'Redirecting...' : 'Create New Society'}
+      </Link>
+    </Button>
+  );
+
+  if (societies.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="w-[600px]">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">
+              Welcome to Society Management
+            </CardTitle>
+            <CardDescription className="text-lg mt-2">
+              You haven&apos;t onboarded any societies yet. Start managing your
+              first society by creating one.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center pt-6">
+            <CreateButton />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Manage Societies</h1>
-        <Button asChild>
-          <Link href="/society/create">
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Society
+        <Button asChild disabled={isNavigating}>
+          <Link href="/society/create" onClick={handleCreateClick}>
+            {isNavigating ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <PlusCircle className="mr-2 h-4 w-4" />
+            )}
+            {isNavigating ? 'Redirecting...' : 'Create New Society'}
           </Link>
         </Button>
       </div>
@@ -88,7 +136,7 @@ export default function SocietiesClientPage({
                 <TableCell>{society.code}</TableCell>
                 <TableCell>{society.name}</TableCell>
                 <TableCell className="capitalize">
-                  {society.bill_type}
+                  {society.bill_frequency}
                 </TableCell>
                 <TableCell>
                   {formatDateRange(

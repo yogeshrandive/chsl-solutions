@@ -26,15 +26,6 @@ export default async function RootLayout({
       <body className={`${inter.className} flex h-full`}>
         <Toaster />
         {userData != null ? (
-          // <SidebarProvider>
-          //   <div className="flex flex-1 overflow-hidden">
-          //     <MainSidebar />
-          //     <SidebarInset>
-          //       {/* <HeaderContent /> */}
-          //       <main className="flex-1 p-6">{children}</main>
-          //     </SidebarInset>
-          //   </div>
-          // </SidebarProvider>
           <div className="flex flex-col flex-1  w-full">
             <main>{children}</main>
           </div>

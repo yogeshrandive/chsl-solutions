@@ -9,7 +9,9 @@ export type MemberHeading = {
 
 export type SocietyHeading = {
   id: number;
-  code: string;
-  name: string;
   amount: number;
+  society_account_master: {
+    code: string;
+    name: string;
+  };
 };

@@ -10,7 +10,7 @@ import {
   RebateSettings,
   Condition,
 } from './societyDefinations';
-import { Tables } from '@/utils/supabase/database.types';
+import { Database, Tables } from '@/utils/supabase/database.types';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 // import { SOCIETY_STATUS } from '@/lib/constants';
@@ -50,7 +50,6 @@ export async function getSocietyByCode(
     .from('societies')
     .select('*')
     .eq('code', societyCode)
-    // .eq('status', SOCIETY_STATUS.ACTIVE)
     .select();
 
   if (error) {
@@ -111,7 +110,7 @@ export async function updateSocietyStep1(
     pan_no: formData.get('pan_no'),
     tan_no: formData.get('tan_no'),
     sac_code: formData.get('sac_code'),
-    bill_type: formData.get('bill_type'),
+    bill_frequency: formData.get('bill_frequency'),
     period_from: formData.get('period_from'),
     period_to: formData.get('period_to'),
     cur_period_from: formData.get('cur_period_from'),
@@ -131,6 +130,8 @@ export async function updateSocietyStep1(
     .update({
       ...updateData,
       step: await getLatestStep(societyData, 2),
+      bill_frequency:
+        updateData.bill_frequency as Database['public']['Enums']['bill_frequency'],
     })
     .eq('id', idSociety)
     .select();
@@ -163,7 +164,7 @@ export async function updateSocietyStep2(
     payment_due_date: Number(formData.get('payment_due_date')),
     grace_period: Number(formData.get('grace_period')),
     interest_rate: Number(formData.get('interest_rate')),
-    period_of_calculation: formData.get('period_of_calculation'),
+    interest_period: formData.get('interest_period'),
     interest_type: formData.get('interest_type'),
     interest_min_rs: Number(formData.get('interest_min_rs')),
     round_off_amount: formData.get('round_off_amount') === 'true',
@@ -175,11 +176,20 @@ export async function updateSocietyStep2(
   }
 
   const updateData = validatedFields.data;
+  // updateData.interest_period =
+  //   updateData.interest_period === 'as_per_bill_type'
+  //     ? societyData.bill_frequency
+  //     : updateData.interest_period;
 
+  console.log('updateData', updateData);
   const { error } = await supabase
     .from('societies')
     .update({
       ...updateData,
+      interest_period:
+        updateData.interest_period === 'as_per_bill_type'
+          ? societyData.bill_frequency
+          : updateData.interest_period,
       step: await getLatestStep(societyData, 3),
     })
     .eq('id', idSociety);
@@ -215,13 +225,13 @@ export async function getTenantSocieties(
     return [];
   }
 
-  return data as Society[];
+  return data as unknown as Society[];
 }
 
 // step3
 export async function updateSocietyStep3(
   prevState: ActionState,
-  formData: { id: string; step: number }
+  formData: { id: number; step: number }
 ) {
   const supabase = await createClient();
 
@@ -248,59 +258,52 @@ export async function updateSocietyStep3(
   return { message: 'Society updated successfully' };
 }
 
-export async function getSocietyHeadings(
-  societyId: number
-): Promise<Tables<'society_headings'>[]> {
+export async function getSocietyHeadings(societyId: number) {
   const supabase = await createClient();
 
   try {
     const { data, error } = await supabase
       .from('society_headings')
-      .select('*')
+      .select(
+        `
+        id,
+        id_account_master,
+        amount,
+        is_interest,
+        is_gst,
+        society_account_master(
+          code,
+          name
+        )
+      `
+      )
       .eq('id_society', Number(societyId))
-      .order('code', { ascending: true });
+      .order('id_account_master', { ascending: true });
 
     if (error) throw error;
-
     return data;
   } catch (error) {
-    console.error('Error fetching society headings:', error);
+    console.error('Error fetching society headings::', error);
     return [];
   }
 }
 
 export async function addHeading(
-  societyId: string,
+  societyId: number,
   headingData: HeadingFormData
 ) {
   const supabase = await createClient();
-
   try {
-    // Check if heading code already exists for this society
-    const { data: existingHeading, error: checkError } = await supabase
-      .from('society_headings')
-      .select('id')
-      .eq('id_society', Number(societyId))
-      .eq('code', headingData.code)
-      .single();
-
-    if (checkError && checkError.code !== 'PGRST116') {
-      // PGRST116 means no rows returned, any other error should be thrown
-      throw new Error('Heading code already exists');
-    }
-
-    if (existingHeading) {
-      throw new Error(
-        'A heading with this code already exists for this society'
-      );
-    }
-
-    const { error } = await supabase
-      .from('society_headings')
-      .insert({ ...headingData, id_society: Number(societyId) });
+    const { error } = await supabase.from('society_headings').insert({
+      id_society: Number(societyId),
+      id_account_master: headingData.id_account_master,
+      amount: headingData.amount,
+      is_gst: headingData.is_gst,
+      is_interest: headingData.is_interest,
+      created_at: new Date().toISOString(),
+    });
 
     if (error) throw error;
-
     return { message: 'Heading added successfully' };
   } catch (error) {
     console.error('Error adding heading:', error);
@@ -348,7 +351,7 @@ export async function deleteHeading(headingId: number) {
 }
 
 export async function updateSocietyStep4(
-  societyId: string,
+  societyId: number,
   data: RebateSettings
 ) {
   const supabase = await createClient();
@@ -378,7 +381,7 @@ export async function updateSocietyStep4(
 }
 
 export async function fetchRebateSettings(
-  societyId: string
+  societyId: number
 ): Promise<RebateSettings | null> {
   const supabase = await createClient();
   try {
@@ -489,7 +492,7 @@ export async function fetchPenaltySettings(
 
 export async function updateSocietyStep6(
   societyId: string,
-  conditions: Condition[]
+  comments: string[]
 ) {
   const supabase = await createClient();
 
@@ -505,7 +508,7 @@ export async function updateSocietyStep6(
     const { error } = await supabase
       .from('societies')
       .update({
-        conditions,
+        comments,
         status:
           societyData.status === 'pending' ? 'active' : societyData.status,
         step: 7,
@@ -515,28 +518,28 @@ export async function updateSocietyStep6(
     if (error) throw error;
 
     revalidatePath('/society');
-    return { message: 'Conditions updated successfully' };
+    return { message: 'Comments updated successfully' };
   } catch (error) {
-    console.error('Error updating conditions:', error);
-    throw new Error('Failed to update conditions');
+    console.error('Error updating comments:', error);
+    throw new Error('Failed to update comments');
   }
 }
 
-export async function fetchConditions(societyId: string): Promise<Condition[]> {
+export async function fetchConditions(societyId: string): Promise<string[]> {
   const supabase = await createClient();
 
   try {
     const { data, error } = await supabase
       .from('societies')
-      .select('conditions')
+      .select('comments')
       .eq('id', societyId)
       .single();
 
     if (error) throw error;
 
-    return (data?.conditions as Condition[]) || [];
+    return (data?.comments as string[]) || [];
   } catch (error) {
-    console.error('Error fetching conditions:', error);
+    console.error('Error fetching comments:', error);
     return [];
   }
 }

@@ -33,7 +33,14 @@ export const menuRules: MenuItem[] = [
       {
         title: 'Information',
         link: '/info/step1',
-        matchPaths: ['/info/step1', '/info/step2'],
+        matchPaths: [
+          '/info/step1',
+          '/info/step2',
+          '/info/step3',
+          '/info/step4',
+          '/info/step5',
+          '/info/step6',
+        ],
         pageTitle: 'Information',
       },
       {

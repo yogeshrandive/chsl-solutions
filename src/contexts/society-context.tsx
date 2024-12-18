@@ -11,7 +11,7 @@ interface SocietyContextType {
     email: string;
     phone: string;
     reg_no: string;
-    bill_type: string;
+    bill_frequency: string;
     total_members: number;
     status: string;
     step: number;

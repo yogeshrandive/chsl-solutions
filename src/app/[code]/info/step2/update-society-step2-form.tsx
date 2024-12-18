@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tables } from '@/utils/supabase/database.types';
+import { billFrequency } from '@/lib/constants';
 
 export function UpdateSocietyStep2Form({
   societyData,
@@ -41,11 +42,11 @@ export function UpdateSocietyStep2Form({
   const form = useForm<Step2FormDataInterface>({
     resolver: zodResolver(step2FormSchema),
     defaultValues: {
-      payment_due_date: societyData.payment_due_date || 25,
+      payment_due_date: societyData.payment_due_date || 30,
       grace_period: societyData.grace_period || 0,
       interest_rate: societyData.interest_rate || 21,
-      period_of_calculation:
-        (societyData.period_of_calculation as 'daily' | 'as_per_bill_type') ||
+      interest_period:
+        (societyData.interest_period as 'daily' | 'as_per_bill_type') ||
         'daily',
       interest_type:
         (societyData.interest_type as 'simple' | 'compound') || 'simple',
@@ -63,7 +64,7 @@ export function UpdateSocietyStep2Form({
   );
 
   const { watch } = form;
-  const periodOfCalculation = watch('period_of_calculation');
+  const interestPeriod = watch('interest_period');
 
   return (
     <Form {...form}>
@@ -136,14 +137,14 @@ export function UpdateSocietyStep2Form({
           />
           <FormField
             control={form.control}
-            name="period_of_calculation"
+            name="interest_period"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Period of Calculation</FormLabel>
+                <FormLabel>Interest Period of Calculation</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  name="period_of_calculation"
+                  name="interest_period"
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -156,17 +157,31 @@ export function UpdateSocietyStep2Form({
                         {option.label}
                       </SelectItem>
                     ))}
+                    {
+                      <SelectItem value={societyData.bill_frequency}>
+                        {
+                          billFrequency.find(
+                            (b) => b.value === societyData.bill_frequency
+                          )?.label
+                        }
+                      </SelectItem>
+                    }
                   </SelectContent>
                 </Select>
                 <FormMessage>
-                  {formState?.error?.period_of_calculation
-                    ? formState?.error?.period_of_calculation
+                  {formState?.error?.interest_period
+                    ? formState?.error?.interest_period
                     : ''}
                 </FormMessage>
                 <FormMessage />
-                {periodOfCalculation === 'as_per_bill_type' && (
+                {interestPeriod === 'as_per_bill_type' && (
                   <FormDescription>
-                    Will be saved as: {societyData.bill_type}
+                    Will be saved as:{' '}
+                    {
+                      billFrequency.find(
+                        (b) => b.value === societyData.bill_frequency
+                      )?.label
+                    }
                   </FormDescription>
                 )}
               </FormItem>

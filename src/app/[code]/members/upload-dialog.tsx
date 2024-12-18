@@ -23,6 +23,22 @@ interface UploadResults {
   errors: string[];
 }
 
+interface UploadDialogProps {
+  open: boolean;
+  onOpenChangeAction: (open: boolean) => void;
+  onSuccessAction: () => void;
+  societyHeadings: {
+    id: number;
+    amount: number;
+    society_account_master?: {
+      code: string;
+      name: string;
+    };
+  }[];
+  societyData: Tables<'societies'>;
+  memberCodes: string[];
+}
+
 export function UploadDialog({
   open,
   onOpenChangeAction,
@@ -30,14 +46,7 @@ export function UploadDialog({
   societyHeadings,
   societyData,
   memberCodes,
-}: {
-  open: boolean;
-  onOpenChangeAction: (open: boolean) => void;
-  onSuccessAction: () => void;
-  societyHeadings: { id: number; code: string; name: string }[];
-  societyData: Tables<'societies'>;
-  memberCodes: string[];
-}) {
+}: UploadDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -159,12 +168,18 @@ export function UploadDialog({
           // Create member and get ID
           const memberId = await uploadCreateMember(memberData);
 
-          // Create member headings data
+          // Create member headings with default amounts from society headings
           const memberHeadingsData = societyHeadings.map((heading) => ({
             id_member: memberId,
             id_society_heading: heading.id,
-            curr_amount: parseFloat(csvMember[heading.code]) || 0,
-            next_amount: parseFloat(csvMember[heading.code]) || 0,
+            curr_amount:
+              parseFloat(
+                csvMember[heading.society_account_master?.code || '']
+              ) || heading.amount,
+            next_amount:
+              parseFloat(
+                csvMember[heading.society_account_master?.code || '']
+              ) || heading.amount,
             created_at: new Date().toISOString(),
           }));
 
@@ -214,7 +229,7 @@ export function UploadDialog({
       'interest_op_balance',
       'interest_free_arrears',
     ]
-      .concat(societyHeadings.map((heading) => heading.code))
+      .concat(societyHeadings.map((h) => h.society_account_master?.code || ''))
       .join(',');
 
     const sampleRow = [
@@ -239,7 +254,7 @@ export function UploadDialog({
       '1000',
       '500',
     ]
-      .concat(societyHeadings.map(() => '0'))
+      .concat(societyHeadings.map((h) => h.amount.toString()))
       .join(',');
 
     return `${headers}\n${sampleRow}`;

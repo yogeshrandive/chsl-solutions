@@ -28,7 +28,6 @@ export function MainSidebar() {
   const societyCode = params.code as string;
 
   const filteredMenuRules = menuRules;
-  // console.log(filteredMenuRules);
   const isActive = (item: MenuItem) => {
     // Remove society code from pathname for matching
     const pathWithoutSocietyCode = pathname.replace(`/${societyCode}`, '');

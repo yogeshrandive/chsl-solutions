@@ -15,8 +15,8 @@ import { SocietyFormTabs } from '../society-form-tab';
 import { UpdateSocietyStep3Form } from './update-society-step3-form';
 import { getSocietyByCode } from '@/models/society';
 import { getUserDetails } from '@/lib/dal';
-import { getGlobalHeadings } from '@/models/globalHeading';
 import { Society } from '@/models/societyDefinations';
+import { getAllAccounts } from '@/models/accountMaster';
 
 export default async function InfoStep3Page({
   params,
@@ -43,7 +43,7 @@ async function InfoStep3Content({ params }: { params: { code: string } }) {
     redirect('/society');
   }
 
-  const globalHeadings = await getGlobalHeadings();
+  const accountHeadings = await getAllAccounts(society.id);
 
   return (
     <div>
@@ -75,9 +75,9 @@ async function InfoStep3Content({ params }: { params: { code: string } }) {
         <CardContent className="max-w-[1050px] mx-auto items-center justify-center">
           <div className="grid w-full gap-4">
             <UpdateSocietyStep3Form
-              societyId={society.id.toString()}
+              societyId={society.id}
               societyData={society as Society}
-              globalHeadings={globalHeadings}
+              accountHeadings={accountHeadings}
             />
           </div>
         </CardContent>

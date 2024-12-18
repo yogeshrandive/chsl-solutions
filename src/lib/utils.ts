@@ -32,15 +32,14 @@ export function formatDbDate(dateString: any): string {
   return formatedDate;
 }
 
-export function formatDate(date: string | null): string {
-  if (!date) return '-';
-  return format(new Date(date), 'dd/MM/yyyy');
+export function formatDate(date: string | null) {
+  if (!date) return '';
+  return moment(date).format('DD MMM YYYY');
 }
 
-export function formatDateRange(from: string, to: string) {
-  const fromDate = formatDate(from);
-  const toDate = formatDate(to);
-  return `${fromDate} - ${toDate}`;
+export function formatDateRange(from: string | null, to: string | null) {
+  if (!from || !to) return '';
+  return `${moment(from).format('DD MMM YYYY')} - ${moment(to).format('DD MMM YYYY')}`;
 }
 
 export function formatDateForInput(date: Date): string {

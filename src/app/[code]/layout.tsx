@@ -5,7 +5,7 @@ import { SocietyProvider } from '@/contexts/society-context';
 import { useEffect, useState } from 'react';
 import { getSocietyByCode, getSocietyTotalMembers } from '@/models/society';
 import { Tables } from '@/utils/supabase/database.types';
-import { billTypes } from '@/lib/constants';
+import { billFrequency } from '@/lib/constants';
 import { HeaderContent } from '@/components/header-content';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { MainSidebar } from '@/components/main-sidebar';
@@ -43,7 +43,10 @@ export default function CodeLayout({
   }, [societyCode, setSociety]);
 
   // Check if current route is info page
-  const isInfoPage = pathname.includes('/info/');
+  const isInfoPage =
+    pathname.includes('/info/') ||
+    pathname.includes('/headgroup') ||
+    pathname.includes('/accountmaster');
 
   // Render pending society message
   // const renderPendingMessage = () => {
@@ -69,8 +72,9 @@ export default function CodeLayout({
         email: society.email || '',
         phone: society.phone_number || '',
         reg_no: society.regi_no || '',
-        bill_type:
-          billTypes.find((b) => b.value === society.bill_type)?.value || '',
+        bill_frequency:
+          billFrequency.find((b) => b.value === society.bill_frequency)
+            ?.value || '',
         total_members: totalMembers,
         status: society.status,
         step: society.step,

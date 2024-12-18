@@ -76,6 +76,8 @@ export function AddHeadForm({
     }
   };
 
+  const parentGroups = headGroups.filter((group) => group.id_parent === null);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -114,7 +116,7 @@ export function AddHeadForm({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="main">Main</SelectItem>
-            {headGroups?.map((group) => (
+            {parentGroups.map((group) => (
               <SelectItem key={group.id} value={group.id.toString()}>
                 {group.name}
               </SelectItem>

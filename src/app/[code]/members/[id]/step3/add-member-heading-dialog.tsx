@@ -134,7 +134,8 @@ export function AddMemberHeadingDialog({
                             key={heading.id}
                             value={heading.id.toString()}
                           >
-                            {heading.code} - {heading.name}
+                            {heading.society_account_master.code} -{' '}
+                            {heading.society_account_master.name}
                           </SelectItem>
                         ))}
                     </SelectContent>

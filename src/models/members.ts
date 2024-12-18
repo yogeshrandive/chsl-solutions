@@ -129,7 +129,8 @@ export async function getMembers(societyId: number) {
   const { data, error } = await supabase
     .from('members')
     .select('*')
-    .eq('id_society', societyId);
+    .eq('id_society', societyId)
+    .order('flat_no', { ascending: false });
 
   if (error) throw new Error(error.message);
   return data || [];
@@ -284,15 +285,26 @@ export async function getMemberHeadings(memberId: number) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('member_headings')
-    .select('*, society_headings(code, name)')
-    .eq('id_member', memberId)
-    .order('id', { ascending: false });
+    .select(
+      `
+      *,
+      society_headings!member_headings_id_society_heading_fkey (
+        id,
+        amount,
+        society_account_master (
+          code,
+          name
+        )
+      )
+    `
+    )
+    .eq('id_member', memberId);
 
   if (error) throw error;
   return data.map((heading) => ({
     ...heading,
-    code: heading.society_headings?.code,
-    name: heading.society_headings?.name,
+    code: heading.society_headings?.society_account_master?.code,
+    name: heading.society_headings?.society_account_master?.name,
   }));
 }
 
@@ -349,4 +361,16 @@ export async function uploadCreateMember(data: TablesInsert<'members'>) {
   if (error) throw error;
 
   return memberData?.[0]?.id;
+}
+
+export async function updateMemberStatus(id: number, status: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('members')
+    .update({ status })
+    .eq('id', id);
+
+  if (error) throw error;
+  return true;
 }

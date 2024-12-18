@@ -1,26 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useTransition } from 'react';
-import {
-  updateSocietyStep3,
-  addHeading,
-  updateHeading,
-  deleteHeading,
-  getSocietyHeadings,
-} from '@/models/society';
-import {
-  headingSchema,
-  HeadingFormData,
-  SocietyHeading,
-  Society,
-} from '@/models/societyDefinations';
-import { Input } from '@/components/ui/input';
+import { updateSocietyStep3, deleteHeading } from '@/models/society';
+import { getSocietyHeadings } from '@/models/societyHeadings';
+import { SocietyHeading, Society } from '@/models/societyDefinations';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -35,102 +22,42 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { PencilIcon, TrashIcon, PlusIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { GlobalHeading } from '@/models/globalHeading';
-import {
-  Select,
-  SelectItem,
-  SelectContent,
-  SelectValue,
-  SelectTrigger,
-} from '@/components/ui/select';
+
+import { AddSocietyHeadingForm } from './add-society-heading-form';
+import { EditSocietyHeadingForm } from './edit-society-heading-form';
 
 export function UpdateSocietyStep3Form({
   societyId,
   societyData,
-  globalHeadings,
+  accountHeadings,
 }: {
-  societyId: string;
+  societyId: number;
   societyData: Society;
-  globalHeadings: GlobalHeading[];
+  accountHeadings: any;
 }) {
   const router = useRouter();
   const { toast } = useToast();
   const [headings, setHeadings] = useState<SocietyHeading[]>([]);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState(false);
   const [editingHeading, setEditingHeading] = useState<SocietyHeading | null>(
     null
   );
-
-  const form = useForm<HeadingFormData>({
-    resolver: zodResolver(headingSchema),
-    defaultValues: {
-      code: '',
-      name: '',
-      amount: 0,
-      is_interest: false,
-      is_gst: false,
-    },
-  });
-
-  const [isPending, startTransition] = useTransition();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
-    fetchHeadings();
-  }, []);
+    fetchHeadings(societyId);
+  }, [societyId]);
 
-  const fetchHeadings = async () => {
-    const headings = await getSocietyHeadings(parseInt(societyId));
-    setHeadings(
-      headings.map((h) => ({
-        ...h,
-        rebate_percentage: h.rebate_percentage ?? null,
-      }))
-    );
-    setEditingHeading(null);
-  };
-  const onSubmit = async (data: HeadingFormData) => {
-    startTransition(async () => {
-      try {
-        if (editingHeading) {
-          await updateHeading(editingHeading.id, data);
-          toast({
-            description: 'Heading updated successfully!',
-          });
-          setIsEditDialogOpen(false);
-        } else {
-          await addHeading(societyId, data);
-          toast({
-            description: 'Heading added successfully!',
-          });
-          setIsAddDialogOpen(false);
-        }
-        await fetchHeadings();
-        form.reset();
-        setEditingHeading(null);
-      } catch (error) {
-        console.error('Error saving heading:', error);
-        toast({
-          variant: 'destructive',
-          description: 'Failed to save heading',
-        });
-      }
-    });
-  };
+  const fetchHeadings = async (societyId: number) => {
+    const headings = await getSocietyHeadings(societyId);
 
-  const handleEdit = (heading: SocietyHeading) => {
-    setEditingHeading(heading);
-    form.reset({
-      code: heading.code,
-      name: heading.name,
-      amount: heading.amount,
-      is_interest: heading.is_interest,
-      is_gst: heading.is_gst,
-    });
-    setIsEditDialogOpen(true);
+    setHeadings(headings as unknown as SocietyHeading[]);
   };
 
   const handleDelete = async (id: number) => {
@@ -140,7 +67,7 @@ export function UpdateSocietyStep3Form({
         toast({
           description: 'Heading deleted successfully!',
         });
-        fetchHeadings();
+        fetchHeadings(societyId);
       } catch (error) {
         console.error('Error deleting heading:', error);
         toast({
@@ -171,25 +98,63 @@ export function UpdateSocietyStep3Form({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <Button
-          onClick={() => {
-            if (isAddDialogOpen) form.reset();
-            setIsAddDialogOpen(true);
-            form.reset();
-          }}
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          <PlusIcon className="mr-2 h-4 w-4" /> Add Heading
-        </Button>
-      </div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            <PlusIcon className="mr-2 h-4 w-4" /> Create New Heading
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Heading</DialogTitle>
+            <DialogDescription>
+              Create a new heading to your society by filling out the details
+              below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <AddSocietyHeadingForm
+              societyId={Number(societyId)}
+              societyCode={societyData.code}
+              accountMasters={accountHeadings}
+              onSuccess={() => {
+                setOpen(false);
+                fetchHeadings(societyId);
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Heading</DialogTitle>
+            <DialogDescription>
+              Update the heading details below.
+            </DialogDescription>
+          </DialogHeader>
+          {editingHeading && (
+            <EditSocietyHeadingForm
+              heading={editingHeading}
+              onSuccess={() => {
+                setIsEditDialogOpen(false);
+                fetchHeadings(societyId);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
+            <TableHead>No</TableHead>
             <TableHead>Code</TableHead>
-            <TableHead>Description</TableHead>
+            <TableHead>Name</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Interest Apply</TableHead>
             <TableHead>GST Apply</TableHead>
@@ -200,8 +165,8 @@ export function UpdateSocietyStep3Form({
           {headings.map((heading, index) => (
             <TableRow key={heading.id}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>{heading.code}</TableCell>
-              <TableCell>{heading.name}</TableCell>
+              <TableCell>{heading.society_account_master?.code}</TableCell>
+              <TableCell>{heading.society_account_master?.name}</TableCell>
               <TableCell>{heading.amount.toFixed(2)}</TableCell>
               <TableCell>{heading.is_interest ? 'Yes' : 'No'}</TableCell>
               <TableCell>{heading.is_gst ? 'Yes' : 'No'}</TableCell>
@@ -210,7 +175,10 @@ export function UpdateSocietyStep3Form({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => handleEdit(heading)}
+                    onClick={() => {
+                      setEditingHeading(heading);
+                      setIsEditDialogOpen(true);
+                    }}
                   >
                     <PencilIcon className="h-4 w-4" />
                   </Button>
@@ -227,124 +195,6 @@ export function UpdateSocietyStep3Form({
           ))}
         </TableBody>
       </Table>
-
-      {/* Add Dialog */}
-      <Dialog
-        open={isAddDialogOpen || isEditDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            form.reset();
-            setIsAddDialogOpen(false);
-            setIsEditDialogOpen(false);
-            setEditingHeading(null);
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {editingHeading ? 'Edit Heading' : 'Add New Heading'}
-            </DialogTitle>
-            <DialogDescription>
-              {editingHeading
-                ? 'Update the details of the selected heading.'
-                : 'Add a new heading to the society.'}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Label htmlFor="heading">Select Global Heading</Label>
-              <Select
-                onValueChange={(value) => {
-                  const selectedHeading = globalHeadings.find(
-                    (h) => h.id.toString() === value
-                  );
-                  if (selectedHeading) {
-                    form.setValue('name', selectedHeading.name);
-                    form.setValue('code', selectedHeading.code);
-                    form.setValue('is_interest', selectedHeading.is_interest);
-                    form.setValue('is_gst', selectedHeading.is_gst);
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Search heading..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {globalHeadings.map((heading) => (
-                    <SelectItem key={heading.id} value={heading.id.toString()}>
-                      {heading.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" {...form.register('name')} />
-              {form.formState.errors.name && (
-                <span className="text-red-500 text-sm">
-                  {form.formState.errors.name.message}
-                </span>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="code">Code</Label>
-              <Input id="code" {...form.register('code')} />
-              {form.formState.errors.code && (
-                <span className="text-red-500 text-sm">
-                  {form.formState.errors.code.message}
-                </span>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="amount">Amount</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                {...form.register('amount', { valueAsNumber: true })}
-              />
-              {form.formState.errors.amount && (
-                <span className="text-red-500 text-sm">
-                  {form.formState.errors.amount.message}
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="is_interest"
-                {...form.register('is_interest')}
-                className="rounded border-gray-300 text-primary focus:ring-primary"
-              />
-              <Label htmlFor="is_interest">Apply Interest</Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="is_gst"
-                {...form.register('is_gst')}
-                className="rounded border-gray-300 text-primary focus:ring-primary"
-              />
-              <Label htmlFor="is_gst">Apply GST</Label>
-            </div>
-
-            <Button type="submit" disabled={isPending} className="w-full">
-              {isPending
-                ? 'Saving...'
-                : editingHeading
-                  ? 'Update Heading'
-                  : 'Save Heading'}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
 
       <div className="flex justify-between">
         <Button

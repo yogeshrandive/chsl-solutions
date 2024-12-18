@@ -20,7 +20,7 @@ export const formSchema = z.object({
   pan_no: z.string().optional(),
   tan_no: z.string().optional(),
   sac_code: z.string().optional(),
-  bill_type: z.string().min(1, 'Bill type is required'),
+  bill_frequency: z.string().min(1, 'Bill type is required'),
   period_from: z.string().min(1, 'Period from date is required'),
   period_to: z.string().min(1, 'Period to date is required'),
   cur_period_from: z.string().min(1, 'Current period from date is required'),

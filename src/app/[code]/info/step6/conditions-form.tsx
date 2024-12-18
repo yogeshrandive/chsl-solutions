@@ -18,7 +18,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { PlusCircle, Pencil, Trash2 } from 'lucide-react';
 import {
-  Condition,
   ConditionsForm as conditionFormType,
   conditionsFormSchema,
 } from '@/models/societyDefinations';
@@ -35,8 +34,8 @@ export function ConditionsForm({
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [conditions, setConditions] = useState<Condition[]>([]);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [comments, setComments] = useState<string[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const {
     register,
@@ -48,64 +47,56 @@ export function ConditionsForm({
   });
 
   useEffect(() => {
-    fetchConditions(societyId).then(setConditions);
+    fetchConditions(societyId).then(setComments);
   }, [societyId]);
 
   const onSubmit: SubmitHandler<conditionFormType> = async (data) => {
     try {
-      const newCondition: Condition = {
-        id: Date.now().toString(),
-        description: data.newCondition,
-      };
-      const updatedConditions = [...conditions, newCondition];
-      await updateSocietyStep6(societyId, updatedConditions);
-      setConditions(updatedConditions);
+      const updatedComments = [...comments, data.newCondition];
+      await updateSocietyStep6(societyId, updatedComments);
+      setComments(updatedComments);
       reset();
       toast({
-        description: 'Condition added successfully!',
+        description: 'Comment added successfully!',
       });
     } catch (error) {
-      console.error('Error adding condition:', error);
+      console.error('Error adding comment:', error);
       toast({
         variant: 'destructive',
-        description: 'Failed to add condition',
+        description: 'Failed to add comment',
       });
     }
   };
 
-  const handleEdit = (id: string) => {
-    setEditingId(id);
+  const handleEdit = (index: number) => {
+    setEditingIndex(index);
   };
 
-  const handleDelete = async (id: string) => {
-    const updatedConditions = conditions.filter(
-      (condition) => condition.id !== id
-    );
-    await updateSocietyStep6(societyId, updatedConditions);
-    setConditions(updatedConditions);
+  const handleDelete = async (index: number) => {
+    const updatedComments = comments.filter((_, i) => i !== index);
+    await updateSocietyStep6(societyId, updatedComments);
+    setComments(updatedComments);
     toast({
-      description: 'Condition deleted successfully!',
+      description: 'Comment deleted successfully!',
     });
   };
 
-  const handleUpdate = async (id: string, newDescription: string) => {
-    const updatedConditions = conditions.map((condition) =>
-      condition.id === id
-        ? { ...condition, description: newDescription }
-        : condition
+  const handleUpdate = async (index: number, newComment: string) => {
+    const updatedComments = comments.map((comment, i) =>
+      i === index ? newComment : comment
     );
-    await updateSocietyStep6(societyId, updatedConditions);
-    setConditions(updatedConditions);
-    setEditingId(null);
+    await updateSocietyStep6(societyId, updatedComments);
+    setComments(updatedComments);
+    setEditingIndex(null);
     toast({
-      description: 'Condition updated successfully!',
+      description: 'Comment updated successfully!',
     });
   };
 
   const handleSaveAndSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await updateSocietyStep6(societyId, conditions);
+      await updateSocietyStep6(societyId, comments);
       toast({
         description: 'Society updated successfully!',
       });
@@ -126,7 +117,7 @@ export function ConditionsForm({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Society Conditions</CardTitle>
+          <CardTitle>Society Comments</CardTitle>
         </CardHeader>
         <CardContent>
           <form
@@ -134,14 +125,11 @@ export function ConditionsForm({
             className="flex items-center space-x-2 mb-4"
           >
             <Input
-              placeholder="Add a new condition..."
+              placeholder="Add a new comment..."
               {...register('newCondition')}
               className="flex-grow"
             />
-            <Button
-              type="submit"
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
+            <Button type="submit">
               <PlusCircle className="h-4 w-4 mr-2" /> Add
             </Button>
           </form>
@@ -153,28 +141,26 @@ export function ConditionsForm({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Condition</TableHead>
+                <TableHead>Comment</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {conditions.map((condition) => (
-                <TableRow key={condition.id}>
+              {comments.map((comment, index) => (
+                <TableRow key={index}>
                   <TableCell>
-                    {editingId === condition.id ? (
+                    {editingIndex === index ? (
                       <Input
-                        defaultValue={condition.description}
-                        onBlur={(e) =>
-                          handleUpdate(condition.id, e.target.value)
-                        }
+                        defaultValue={comment}
+                        onBlur={(e) => handleUpdate(index, e.target.value)}
                         onKeyPress={(e) => {
                           if (e.key === 'Enter') {
-                            handleUpdate(condition.id, e.currentTarget.value);
+                            handleUpdate(index, e.currentTarget.value);
                           }
                         }}
                       />
                     ) : (
-                      condition.description
+                      comment
                     )}
                   </TableCell>
                   <TableCell>
@@ -182,14 +168,14 @@ export function ConditionsForm({
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => handleEdit(condition.id)}
+                        onClick={() => handleEdit(index)}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="destructive"
                         size="icon"
-                        onClick={() => handleDelete(condition.id)}
+                        onClick={() => handleDelete(index)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -205,7 +191,7 @@ export function ConditionsForm({
       <div className="flex justify-between">
         <Button
           type="button"
-          onClick={() => router.push(`/society/${societyId}/step5`)}
+          onClick={() => router.push(`/${societyData.code}/info/step5`)}
           variant="outline"
         >
           Previous

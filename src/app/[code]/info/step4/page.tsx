@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import InfoStep4Loading from './loading';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -15,27 +17,33 @@ import { getSocietyByCode } from '@/models/society';
 import { getUserDetails } from '@/lib/dal';
 import { Society } from '@/models/societyDefinations';
 
-export default async function UpdateSocietyStep4({
+export default async function InfoStep4Page({
   params,
 }: {
   params: { code: string };
 }) {
+  return (
+    <Suspense fallback={<InfoStep4Loading />}>
+      <InfoStep4Content params={params} />
+    </Suspense>
+  );
+}
+
+async function InfoStep4Content({ params }: { params: { code: string } }) {
   const user = await getUserDetails();
   if (!user) {
     redirect('/login');
   }
 
   const { code } = await params;
-
   const society = await getSocietyByCode(code);
-
   if (!society) {
     redirect('/society');
   }
 
   return (
     <div>
-      <div className="pb-4 ">
+      <div className="pb-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -49,10 +57,6 @@ export default async function UpdateSocietyStep4({
             <BreadcrumbItem>
               <BreadcrumbPage>Edit</BreadcrumbPage>
             </BreadcrumbItem>
-            <BreadcrumbSeparator></BreadcrumbSeparator>
-            <BreadcrumbItem>
-              <BreadcrumbPage>Rebate Settings</BreadcrumbPage>
-            </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
@@ -63,7 +67,7 @@ export default async function UpdateSocietyStep4({
         <CardContent className="max-w-[1050px] mx-auto items-center justify-center">
           <div className="grid w-full gap-4">
             <RebateSettingsForm
-              societyId={society.id.toString()}
+              societyId={society.id}
               societyData={society as Society}
             />
           </div>

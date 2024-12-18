@@ -22,7 +22,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
 import { formSchema, FormDataInterface } from './definations';
-import { billTypes } from '@/lib/constants';
+import { billFrequency } from '@/lib/constants';
 import { createSociety, getStates, getCitiesByState } from './actions';
 import { Textarea } from '@/components/ui/textarea';
 import { DateInput } from '@/components/date-input';
@@ -63,7 +63,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
       pan_no: '',
       tan_no: '',
       sac_code: '',
-      bill_type: billTypes[0].value,
+      bill_frequency: billFrequency[0].value,
       period_from: moment().format('YYYY-MM-DD'),
       period_to: getFinancialYearEndDate().format('YYYY-MM-DD'),
       cur_period_from: moment().format('YYYY-MM-DD'),
@@ -88,9 +88,9 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
-      if (name === 'bill_type' || name === 'cur_period_from') {
+      if (name === 'bill_frequency' || name === 'cur_period_from') {
         const cuPrtiodFrom = getValues('cur_period_from');
-        const watchBillType = getValues('bill_type');
+        const watchBillType = getValues('bill_frequency');
 
         const curPeriodDate = moment(cuPrtiodFrom, 'YYYY-MM-DD');
         let curPeriodTo = '';
@@ -496,22 +496,22 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
           />
           <FormField
             control={form.control}
-            name="bill_type"
+            name="bill_frequency"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Bill Type</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  name="bill_type"
+                  name="bill_frequency"
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Bill Type" />
+                      <SelectValue placeholder="Select Bill Frequency" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {billTypes.map((type) => (
+                    {billFrequency.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         {type.label}
                       </SelectItem>
@@ -519,8 +519,8 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   </SelectContent>
                 </Select>
                 <FormMessage>
-                  {formState?.error?.bill_type
-                    ? formState?.error?.bill_type
+                  {formState?.error?.bill_frequency
+                    ? formState?.error?.bill_frequency
                     : ''}
                 </FormMessage>
               </FormItem>

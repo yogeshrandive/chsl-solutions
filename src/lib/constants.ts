@@ -13,7 +13,7 @@ export const MEMBER_FORM_STEPS = [
   { title: 'Outgoings', action: 'step3' },
 ];
 
-export const billTypes = [
+export const billFrequency = [
   { value: 'monthly', label: 'Monthly' },
   { value: 'bi-monthly', label: 'Bi-Monthly' },
   { value: 'quarterly', label: 'Quarterly' },
@@ -62,3 +62,8 @@ export const HEAD_TYPES = [
 ];
 
 export type HeadType = 'liabilities' | 'assets' | 'incomes' | 'expenses';
+
+export const interestType = [
+  { value: 'simple', label: 'Simple' },
+  { value: 'compound', label: 'Compound' },
+];

@@ -13,6 +13,7 @@ export const SocietySchema = z.object({
   status: z.string(),
   address: z.string(),
   regi_no: z.string(),
+  rebate_apply: z.boolean(),
 });
 
 export type Society = z.infer<typeof SocietySchema>;
@@ -36,7 +37,7 @@ export const step1FormSchema = z.object({
   pan_no: z.string().optional(),
   tan_no: z.string().optional(),
   sac_code: z.string().optional(),
-  bill_type: z.string().min(1, 'Bill type is required'),
+  bill_frequency: z.string().min(1, 'Bill frequency is required'),
   period_from: z.string().min(1, 'Period from date is required'),
   period_to: z.string().min(1, 'Period to date is required'),
   cur_period_from: z.string().min(1, 'Current period from date is required'),
@@ -60,7 +61,15 @@ export const step2FormSchema = z.object({
     .number()
     .min(0, 'Must be 0 or greater')
     .max(100, 'Must be 100 or less'),
-  period_of_calculation: z.enum(['daily', 'as_per_bill_type']),
+  interest_period: z.enum([
+    'daily',
+    'monthly',
+    'bi-monthly',
+    'quarterly',
+    'half-yearly',
+    'yearly',
+    'as_per_bill_type',
+  ]),
   interest_type: z.enum(['simple', 'compound']),
   interest_min_rs: z.number().min(0, 'Must be 0 or greater'),
   round_off_amount: z.boolean(),
@@ -69,10 +78,7 @@ export const step2FormSchema = z.object({
 
 export type Step2FormDataInterface = z.infer<typeof step2FormSchema>;
 
-export const periodOfCalculationOptions = [
-  { value: 'daily', label: 'Daily' },
-  { value: 'as_per_bill_type', label: 'As Per Bill Type' },
-];
+export const periodOfCalculationOptions = [{ value: 'daily', label: 'Daily' }];
 
 export const interestTypeOptions = [
   { value: 'simple', label: 'Simple' },
@@ -85,8 +91,7 @@ export const creditAdjFirstOptions = [
 ];
 
 export const headingSchema = z.object({
-  code: z.string().min(1, 'Code is required'),
-  name: z.string().min(1, 'Name is required'),
+  id_account_master: z.number().min(1, 'Account Master is required'),
   amount: z.number().min(0, 'Amount must be 0 or greater'),
   is_interest: z.boolean(),
   is_gst: z.boolean(),
@@ -96,7 +101,7 @@ export type HeadingFormData = z.infer<typeof headingSchema>;
 
 export const rebateSettingsSchema = z.object({
   rebate_apply: z.boolean().default(false),
-  rebate_type: z.enum(['fixed_amount', 'fixed_per', 'manual']),
+  rebate_type: z.enum(['fixed_amount', 'fixed_per']),
   rebate_due_date: z.number().min(1).max(30),
   rebate_fixed_amount: z.number().min(0).default(0),
   rebate_percentage: z.number().min(0).max(100).default(0),
@@ -118,12 +123,7 @@ export const penaltySettingsSchema = z.object({
 
 export type PenaltySettings = z.infer<typeof penaltySettingsSchema>;
 
-export const conditionSchema = z.object({
-  id: z.string(),
-  description: z.string().min(1, 'Condition description is required'),
-});
-
-export type Condition = z.infer<typeof conditionSchema>;
+export type Condition = string[];
 
 export const conditionsFormSchema = z.object({
   newCondition: z.string().min(1, 'Condition is required'),
@@ -131,11 +131,14 @@ export const conditionsFormSchema = z.object({
 
 export type ConditionsForm = z.infer<typeof conditionsFormSchema>;
 
-export interface SocietyHeading extends HeadingFormData {
+export type SocietyHeading = {
   id: number;
-  id_society: number;
-  created_at: string;
   amount: number;
-  rebate_amount: number | null;
-  rebate_percentage: number | null;
-}
+  is_interest: boolean;
+  is_gst: boolean;
+  id_account_master: number;
+  society_account_master?: {
+    code: string;
+    name: string;
+  };
+};
