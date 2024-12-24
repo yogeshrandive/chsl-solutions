@@ -1,26 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Suspense } from 'react';
-import { getUserDetails } from '@/lib/dal';
-import { getSocietyByCode } from '@/models/society';
-import { redirect } from 'next/navigation';
-import AccountMasterClientPage from './client-page';
-import { getAllAccounts } from '@/models/accountMaster';
-import { getAllGroups } from '@/models/societyHeadingGroups';
-import AccountMasterLoading from './loading';
+import { Suspense } from "react";
+import { getUserDetails } from "@/lib/dal";
+import { getSocietyByCode } from "@/models/society";
+import { redirect } from "next/navigation";
+import AccountMasterClientPage from "./client-page";
+import { getAllAccounts } from "@/models/accountMaster";
+import { getAllGroups } from "@/models/societyHeadingGroups";
+import AccountMasterLoading from "./loading";
+import { Metadata } from "next";
 
-export default async function AccountMasterPage({
-  params,
-}: {
+type Props = {
   params: { code: string };
-}) {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return {
+    title: `Account Master - ${params.code}`,
+  };
+}
+
+export default async function AccountMaster({
+  params,
+}: Props) {
   const user = await getUserDetails();
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
-  const { code } = await params;
+  const { code } = params;
   const societyData = await getSocietyByCode(code);
-  if (!societyData) redirect('/');
+  if (!societyData) redirect("/");
 
   return (
     <Suspense fallback={<AccountMasterLoading />}>

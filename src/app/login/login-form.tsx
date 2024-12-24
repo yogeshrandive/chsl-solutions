@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useActionState } from 'react';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useActionState } from "react";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,20 +13,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { login } from './actions';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { login } from "./actions";
 
-import { LoginFormSchema, FormState } from './definitions';
+import { LoginFormSchema } from "./definitions";
 
 type FormValues = z.infer<typeof LoginFormSchema>;
 
@@ -36,8 +35,8 @@ export default function LoginForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
@@ -94,7 +93,8 @@ export default function LoginForm() {
             </form>
           </Form>
         </CardContent>
-        {/* <CardFooter className="flex flex-col space-y-2">
+        {
+          /* <CardFooter className="flex flex-col space-y-2">
           <div className="text-sm text-center">
             <Link
               href="/forgot-password"
@@ -109,7 +109,8 @@ export default function LoginForm() {
               Sign up
             </Link>
           </div>
-        </CardFooter> */}
+        </CardFooter> */
+        }
       </Card>
     </div>
   );

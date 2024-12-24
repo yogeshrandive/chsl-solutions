@@ -23,6 +23,7 @@ export default [
       'no-unused-vars': 'error',
       'no-undef': 'error',
       'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
     },
   },
   {
