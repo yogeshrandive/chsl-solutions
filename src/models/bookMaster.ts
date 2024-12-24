@@ -1,14 +1,14 @@
-'use server';
-import { createClient } from '@/utils/supabase/server';
-import { TablesInsert } from '@/utils/supabase/database.types';
+"use server";
+import { createClient } from "@/utils/supabase/server";
+import { TablesInsert } from "@/utils/supabase/database.types";
 
 export interface Book {
   id: number;
   code: string;
   name: string;
-  type: 'bank' | 'cash';
+  type: "bank" | "cash";
   op_balance: number;
-  op_type: 'credit' | 'debit' | null;
+  op_type: "credit" | "debit" | null;
   id_group: number;
   id_sub_group: number | null;
   group: { id: number; name: string };
@@ -19,7 +19,7 @@ export async function getAllBooks(idSociety: number) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('society_book_master')
+    .from("society_book_master")
     .select(
       `
       id,
@@ -44,22 +44,22 @@ export async function getAllBooks(idSociety: number) {
         id,
         name
       )
-    `
+    `,
     )
-    .eq('id_society', idSociety)
-    .order('code');
+    .eq("id_society", idSociety)
+    .order("code");
 
   if (error) throw error;
   return data;
 }
 
 export async function createBook(
-  inputData: TablesInsert<'society_book_master'>
+  inputData: TablesInsert<"society_book_master">,
 ) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('society_book_master')
+    .from("society_book_master")
     .insert(inputData)
     .select()
     .single();
@@ -74,10 +74,10 @@ export async function createBook(
 export async function getBookByCode(code: string, idSociety: number) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('society_book_master')
-    .select('id')
-    .eq('code', code)
-    .eq('id_society', idSociety)
+    .from("society_book_master")
+    .select("id")
+    .eq("code", code)
+    .eq("id_society", idSociety)
     .select();
 
   if (error) throw error;
@@ -86,14 +86,14 @@ export async function getBookByCode(code: string, idSociety: number) {
 
 export async function updateBook(
   id: number,
-  inputData: Partial<TablesInsert<'society_book_master'>>
+  inputData: Partial<TablesInsert<"society_book_master">>,
 ) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('society_book_master')
+    .from("society_book_master")
     .update(inputData)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -108,12 +108,29 @@ export async function deleteBook(id: number) {
   const supabase = await createClient();
 
   const { error } = await supabase
-    .from('society_book_master')
+    .from("society_book_master")
     .delete()
-    .eq('id', id);
+    .eq("id", id);
 
   if (error) {
     console.error(error);
     throw error;
   }
+}
+
+export async function getBooksBySocietyId(
+  idSociety: number,
+  type: string = "all",
+) {
+  const supabase = await createClient();
+  const query = supabase.from("society_book_master").select("*")
+    .eq("id_society", idSociety);
+
+  if (type !== "all") {
+    query.eq("type", type);
+  }
+  const { data, error } = await query;
+
+  if (error) throw error;
+  return data;
 }

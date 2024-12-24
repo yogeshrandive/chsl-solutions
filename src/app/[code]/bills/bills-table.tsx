@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -8,30 +8,30 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Eye, FileEdit } from 'lucide-react';
-import Link from 'next/link';
-import { formatDate, formatDateRange } from '@/lib/utils';
-import { Tables } from '@/utils/supabase/database.types';
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Eye, FileEdit } from "lucide-react";
+import Link from "next/link";
+import { formatDate, formatDateRange } from "@/lib/utils";
+import { Tables } from "@/utils/supabase/database.types";
 
 interface BillsTableProps {
-  bills: Tables<'society_bills'>[];
+  bills: Tables<"society_bills">[];
   societyCode: string;
-  societyData: Tables<'societies'>;
+  societyData: Tables<"societies">;
 }
 
 export function BillsTable({ bills, societyCode }: BillsTableProps) {
   const getBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'published':
-        return 'default';
-      case 'draft':
-        return 'secondary';
-      case 'cancelled':
-        return 'destructive';
+      case "published":
+        return "default";
+      case "draft":
+        return "secondary";
+      case "cancelled":
+        return "destructive";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
@@ -70,11 +70,11 @@ export function BillsTable({ bills, societyCode }: BillsTableProps) {
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/${societyCode}/bills/${bill.id}/view`}>
+                      <Link href={`/${societyCode}/bills/${bill.id}`}>
                         <Eye className="h-4 w-4" />
                       </Link>
                     </Button>
-                    {bill.status === 'draft' && (
+                    {bill.status === "draft" && (
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/${societyCode}/bills/${bill.id}/edit`}>
                           <FileEdit className="h-4 w-4" />

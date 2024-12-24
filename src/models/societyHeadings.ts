@@ -23,9 +23,9 @@ export async function getSocietyHeadings(societyId: number) {
     if (error) throw error;
     return data.map((heading) => ({
       ...heading,
-      society_account_master: heading.society_account_master as {
-        code: string;
-        name: string;
+      society_account_master: heading.society_account_master || {
+        code: '',
+        name: '',
       },
     }));
   } catch (error) {

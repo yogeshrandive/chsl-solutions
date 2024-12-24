@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Tables } from '@/utils/supabase/database.types';
-import { Button } from '@/components/ui/button';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Tables } from "@/utils/supabase/database.types";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,32 +12,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { DateInput } from '@/components/date-input';
-import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
-import { generateBill } from '@/models/societyBills';
-import { billGenerateSchema } from '@/models/societyBillsSchema';
-import moment from 'moment';
-import { billFrequency } from '@/lib/constants';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/date-input";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { generateBill } from "@/models/societyBills";
+import { billGenerateSchema } from "@/models/societyBillsSchema";
+import moment from "moment";
+import { billFrequency } from "@/lib/constants";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { formatDate } from '@/lib/utils';
-import { X } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { creditAdjFirstOptions } from '@/models/societyDefinations';
-import { useState } from 'react';
+} from "@/components/ui/select";
+import { formatDate } from "@/lib/utils";
+import { X } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { creditAdjFirstOptions } from "@/models/societyDefinations";
+import { useState } from "react";
 
 interface BillGenerateFormProps {
-  societyData: Tables<'societies'>;
+  societyData: Tables<"societies">;
   onSuccess?: () => void;
 }
 
@@ -53,15 +53,18 @@ export function BillGenerateForm({
     resolver: zodResolver(billGenerateSchema),
     defaultValues: {
       bill_lot: societyData.bill_lot,
-      bill_date: moment().format('YYYY-MM-DD'),
+      bill_date: moment(societyData.cur_period_from).format("YYYY-MM-DD"),
       bill_period_from: societyData.cur_period_from,
       bill_period_to: societyData.cur_period_to,
-      due_date: moment()
-        .add(societyData.payment_due_date, 'days')
-        .format('YYYY-MM-DD'),
+      due_date: moment(societyData.cur_period_from)
+        .add(societyData.payment_due_date, "days")
+        .subtract(1, "days")
+        .format("YYYY-MM-DD"),
       start_bill_no: societyData.bill_no,
       interest_rate: societyData.interest_rate,
+      interest_period: societyData.interest_period,
       credit_adj_first: societyData.credit_adj_first,
+
       comments: societyData.comments || [],
     },
   });
@@ -74,14 +77,15 @@ export function BillGenerateForm({
         id_society: societyData.id,
       });
 
-      toast({ description: 'Bill generated successfully' });
+      toast({ description: "Bill generated successfully" });
       onSuccess?.();
       router.refresh();
     } catch (error) {
       toast({
-        variant: 'destructive',
-        description:
-          error instanceof Error ? error.message : 'Failed to generate bill',
+        variant: "destructive",
+        description: error instanceof Error
+          ? error.message
+          : "Failed to generate bill",
       });
     } finally {
       setIsSubmitting(false);
@@ -114,7 +118,7 @@ export function BillGenerateForm({
                     Bill Period
                   </Label>
                   <p className="font-medium">
-                    {formatDate(societyData.cur_period_from)} -{' '}
+                    {formatDate(societyData.cur_period_from)} -{" "}
                     {formatDate(societyData.cur_period_to)}
                   </p>
                 </div>
@@ -124,9 +128,10 @@ export function BillGenerateForm({
                   </Label>
                   <p className="font-medium">
                     {formatDate(
-                      moment()
-                        .add(societyData.payment_due_date, 'days')
-                        .format('YYYY-MM-DD')
+                      moment(societyData.cur_period_from)
+                        .add(societyData.payment_due_date, "days")
+                        .subtract(1, "days")
+                        .format("YYYY-MM-DD"),
                     )}
                   </p>
                 </div>
@@ -174,7 +179,7 @@ export function BillGenerateForm({
                           type="number"
                           step="0.01"
                           {...field}
-                          value={field.value ?? ''}
+                          value={field.value ?? ""}
                         />
                       </FormControl>
                       <FormMessage />
@@ -189,7 +194,7 @@ export function BillGenerateForm({
                       <FormLabel>Credit Adjusted First</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value || 'principle'}
+                        defaultValue={field.value || "principle"}
                         name="credit_adj_first"
                       >
                         <FormControl>
@@ -222,8 +227,7 @@ export function BillGenerateForm({
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    form.setValue('comments', [...form.watch('comments'), ''])
-                  }
+                    form.setValue("comments", [...form.watch("comments"), ""])}
                 >
                   Add Comment
                 </Button>
@@ -252,7 +256,8 @@ export function BillGenerateForm({
                             className="shrink-0"
                             onClick={() => {
                               const newComments = field.value.filter(
-                                (_, i) => i !== index
+                                (_, i) =>
+                                  i !== index,
                               );
                               field.onChange(newComments);
                             }}
@@ -285,7 +290,7 @@ export function BillGenerateForm({
             className="w-full sm:w-auto"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Generating...' : 'Generate Bill'}
+            {isSubmitting ? "Generating..." : "Generate Bill"}
           </Button>
         </div>
       </form>

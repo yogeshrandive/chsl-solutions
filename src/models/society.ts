@@ -8,7 +8,6 @@ import {
   step1FormSchema,
   step2FormSchema,
   RebateSettings,
-  Condition,
 } from './societyDefinations';
 import { Database, Tables } from '@/utils/supabase/database.types';
 import { revalidatePath } from 'next/cache';
