@@ -28,7 +28,7 @@ export default async function AccountMaster({
     redirect("/login");
   }
 
-  const { code } = params;
+  const { code } = await params;
   const societyData = await getSocietyByCode(code);
   if (!societyData) redirect("/");
 
