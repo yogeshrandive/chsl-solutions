@@ -6,11 +6,13 @@ import { getMembers } from "@/models/members";
 import { getSocietyByCode } from "@/models/society";
 import { SocietyHeading } from "./[id]/step3/definations";
 
+interface PageProps {
+  params: Promise<{ code: string }>;
+}
+
 export default async function MembersPage({
   params,
-}: {
-  params: { code: string };
-}) {
+}: PageProps) {
   const user = await getUserDetails();
   if (!user) {
     redirect("/login");

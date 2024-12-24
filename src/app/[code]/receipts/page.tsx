@@ -9,11 +9,13 @@ import { getSocietyByCode } from "@/models/society";
 import { getMembers } from "@/models/members";
 import { getBooksBySocietyId } from "@/models/bookMaster";
 
+interface PageProps {
+    params: Promise<{ code: string }>;
+}
+
 export default async function Receipts({
     params,
-}: {
-    params: { code: string };
-}) {
+}: PageProps) {
     const user = await getUserDetails();
     if (!user) {
         redirect("/login");

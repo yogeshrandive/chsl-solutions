@@ -4,11 +4,16 @@ import { getSocietyByCode } from "@/models/society";
 import { getBillById, getMemberBillsByBillId } from "@/models/societyBills";
 import BillDetailsPage from "./bill-details-page";
 
+interface PageProps {
+    params: Promise<{
+        code: string;
+        id: string;
+    }>;
+}
+
 export default async function BillDetailsPageServer({
     params,
-}: {
-    params: { code: string; id: string };
-}) {
+}: PageProps) {
     const user = await getUserDetails();
     if (!user) {
         redirect("/login");

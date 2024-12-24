@@ -1,21 +1,23 @@
-'use server';
-import { redirect } from 'next/navigation';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+"use server";
+import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-import { MemberFormTabs } from '../../member-form-tab';
-import { getUserDetails } from '@/lib/dal';
-import { getMember } from '@/models/members';
-import UpdateMemberStep1Form from './update-member-step1-form';
-import { getMemberTypes } from '@/models/memberTypes';
+import { MemberFormTabs } from "../../member-form-tab";
+import { getUserDetails } from "@/lib/dal";
+import { getMember } from "@/models/members";
+import UpdateMemberStep1Form from "./update-member-step1-form";
+import { getMemberTypes } from "@/models/memberTypes";
+
+interface PageProps {
+  params: Promise<{ id: string; code: string }>;
+}
 
 export default async function MemberStep1Page({
   params,
-}: {
-  params: { id: string; code: string };
-}) {
+}: PageProps) {
   const user = await getUserDetails();
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
   const { id, code } = await params;
 

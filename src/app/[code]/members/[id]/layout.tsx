@@ -1,24 +1,24 @@
-import { redirect } from 'next/navigation';
-import { getMember } from '@/models/members';
-import { getUserDetails } from '@/lib/dal';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Building2, Mail, Phone, User, MapPin } from 'lucide-react';
+import { redirect } from "next/navigation";
+import { getMember } from "@/models/members";
+import { getUserDetails } from "@/lib/dal";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Building2, Mail, MapPin, Phone, User } from "lucide-react";
 
 export default async function MemberLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { id: number; code: string };
+  params: { id: string; code: string };
 }) {
   const user = await getUserDetails();
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const { id, code } = await params;
-  const member = await getMember(id);
+  const member = await getMember(parseInt(id));
 
   if (!member || member == null) {
     redirect(`/${code}/members`);
@@ -40,9 +40,9 @@ export default async function MemberLayout({
                   <div className="flex items-center space-x-2 mt-1">
                     <Badge variant="outline">{member.code}</Badge>
                     <Badge
-                      variant={
-                        member.status === 'active' ? 'default' : 'destructive'
-                      }
+                      variant={member.status === "active"
+                        ? "default"
+                        : "destructive"}
                     >
                       {member.status}
                     </Badge>

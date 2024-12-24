@@ -1,26 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Suspense } from 'react';
-import { getUserDetails } from '@/lib/dal';
-import { getSocietyByCode } from '@/models/society';
-import { redirect } from 'next/navigation';
-import BookMasterClientPage from './client-page';
-import { getAllBooks } from '@/models/bookMaster';
-import { getAllGroups } from '@/models/societyHeadingGroups';
-import BookMasterLoading from './loading';
+import { Suspense } from "react";
+import { getUserDetails } from "@/lib/dal";
+import { getSocietyByCode } from "@/models/society";
+import { redirect } from "next/navigation";
+import BookMasterClientPage from "./client-page";
+import { getAllBooks } from "@/models/bookMaster";
+import { getAllGroups } from "@/models/societyHeadingGroups";
+import BookMasterLoading from "./loading";
+
+interface PageProps {
+  params: Promise<{ code: string }>;
+}
 
 export default async function BookMasterPage({
   params,
-}: {
-  params: { code: string };
-}) {
+}: PageProps) {
   const user = await getUserDetails();
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const { code } = await params;
   const societyData = await getSocietyByCode(code);
-  if (!societyData) redirect('/');
+  if (!societyData) redirect("/");
 
   return (
     <Suspense fallback={<BookMasterLoading />}>

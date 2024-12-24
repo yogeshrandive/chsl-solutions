@@ -1,17 +1,19 @@
-import { getSocieties } from './actions';
-import { getUserDetails } from '@/lib/dal';
-import { redirect } from 'next/navigation';
-import SocietiesClientPage from './client-page';
+import { getSocieties } from "./actions";
+import { getUserDetails } from "@/lib/dal";
+import { redirect } from "next/navigation";
+import SocietiesClientPage from "./client-page";
+
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}
 
 export default async function SocietiesPageServer({
   searchParams,
-}: {
-  searchParams: { [key: string]: string | undefined };
-}) {
+}: PageProps) {
   const user = await getUserDetails();
 
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const { filter } = await searchParams;

@@ -1,33 +1,35 @@
-import { redirect } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbSeparator,
   BreadcrumbList,
   BreadcrumbPage,
-} from '@/components/ui/breadcrumb';
-import { getUserDetails } from '@/lib/dal';
-import { Slash } from 'lucide-react';
-import CreateMemberForm from './create-member-form';
-import { getSocietyByCode } from '@/models/society';
-import { getMemberTypes } from '@/models/memberTypes';
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { getUserDetails } from "@/lib/dal";
+import { Slash } from "lucide-react";
+import CreateMemberForm from "./create-member-form";
+import { getSocietyByCode } from "@/models/society";
+import { getMemberTypes } from "@/models/memberTypes";
+
+interface PageProps {
+  params: Promise<{ code: string }>;
+}
 
 export default async function CreateMemberPage({
   params,
-}: {
-  params: { code: string };
-}) {
+}: PageProps) {
   const user = await getUserDetails();
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const { code } = await params;
 
   const societyData = await getSocietyByCode(code);
-  if (!societyData) redirect('/');
+  if (!societyData) redirect("/");
 
   const memberTypes = await getMemberTypes();
 

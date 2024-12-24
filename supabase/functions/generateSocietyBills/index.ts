@@ -50,7 +50,7 @@ serve(async (req) => {
       })
       .eq("id", inputData.record.id);
 
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });

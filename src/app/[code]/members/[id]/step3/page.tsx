@@ -1,22 +1,24 @@
-import { redirect } from 'next/navigation';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-import { MemberFormTabs } from '../../member-form-tab';
-import { getUserDetails } from '@/lib/dal';
-import { getMember } from '@/models/members';
-import UpdateMemberStep3Form from './update-member-step3-form';
-import { getMemberHeadings } from '@/models/members';
-import { getSocietyHeadings } from '@/models/society';
-import { MemberHeading, SocietyHeading } from './definations';
+import { MemberFormTabs } from "../../member-form-tab";
+import { getUserDetails } from "@/lib/dal";
+import { getMember } from "@/models/members";
+import UpdateMemberStep3Form from "./update-member-step3-form";
+import { getMemberHeadings } from "@/models/members";
+import { getSocietyHeadings } from "@/models/society";
+import { MemberHeading, SocietyHeading } from "./definations";
+
+interface PageProps {
+  params: Promise<{ id: string; code: string }>;
+}
 
 export default async function MemberStep3Page({
   params,
-}: {
-  params: { id: string; code: string };
-}) {
+}: PageProps) {
   const user = await getUserDetails();
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
   const { id, code } = await params;
 

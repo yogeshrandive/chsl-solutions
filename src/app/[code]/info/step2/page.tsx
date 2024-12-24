@@ -1,29 +1,31 @@
-import { Suspense } from 'react';
-import InfoStep2Loading from './loading';
-import { redirect } from 'next/navigation';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Suspense } from "react";
+import InfoStep2Loading from "./loading";
+import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbSeparator,
   BreadcrumbList,
   BreadcrumbPage,
-} from '@/components/ui/breadcrumb';
-import { Slash } from 'lucide-react';
-import { SocietyFormTabs } from '../society-form-tab';
-import { UpdateSocietyStep2Form } from './update-society-step2-form';
-import { getUserDetails } from '@/lib/dal';
-import { getSocietyByCode } from '@/models/society';
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Slash } from "lucide-react";
+import { SocietyFormTabs } from "../society-form-tab";
+import { UpdateSocietyStep2Form } from "./update-society-step2-form";
+import { getUserDetails } from "@/lib/dal";
+import { getSocietyByCode } from "@/models/society";
+
+interface PageProps {
+  params: Promise<{ code: string }>;
+}
 
 export default async function InfoStep2Page({
   params,
-}: {
-  params: { code: string };
-}) {
+}: PageProps) {
   return (
     <Suspense fallback={<InfoStep2Loading />}>
-      <InfoStep2Content params={params} />
+      <InfoStep2Content params={await params} />
     </Suspense>
   );
 }
@@ -31,13 +33,13 @@ export default async function InfoStep2Page({
 async function InfoStep2Content({ params }: { params: { code: string } }) {
   const user = await getUserDetails();
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const { code } = await params;
   const society = await getSocietyByCode(code);
   if (!society) {
-    redirect('/society');
+    redirect("/society");
   }
 
   return (
