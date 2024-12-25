@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MainHeader } from "@/components/main-header";
 import { getUserDetails } from "@/lib/dal";
 import { redirect } from "next/navigation";
@@ -5,7 +6,7 @@ import { getSocieties } from "./society/actions";
 import SocietiesClientPage from "./society/client-page";
 
 interface PageProps {
-    searchParams: { [key: string]: string | undefined };
+    searchParams: Promise<any>;
 }
 
 export default async function HomePage({ searchParams }: PageProps) {
@@ -15,8 +16,8 @@ export default async function HomePage({ searchParams }: PageProps) {
         redirect("/login");
     }
 
-    const { filter } = await searchParams;
-    const societies = await getSocieties(user.id_tenant, filter);
+    const { data } = await searchParams;
+    const societies = await getSocieties(user.id_tenant, data);
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
@@ -26,7 +27,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                     <div className="p-8">
                         <SocietiesClientPage
                             societies={societies}
-                            filter={filter}
+                            filter={data}
                         />
                     </div>
                 </div>

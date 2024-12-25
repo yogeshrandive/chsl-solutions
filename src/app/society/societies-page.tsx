@@ -16,7 +16,8 @@ export default async function SocietiesPageServer({
     redirect("/login");
   }
 
-  const { filter } = await searchParams;
+  const { data } = await searchParams;
+  const filter = typeof data === "string" ? data : undefined;
   const societies = await getSocieties(user.id_tenant, filter);
 
   return <SocietiesClientPage societies={societies} filter={filter} />;

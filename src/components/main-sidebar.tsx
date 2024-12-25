@@ -1,36 +1,34 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import Link from 'next/link';
-import { useParams, usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import * as React from "react";
+import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuItem,
   SidebarMenuSub,
-  SidebarMenuSubItem,
   SidebarMenuSubButton,
-} from '@/components/ui/sidebar';
+  SidebarMenuSubItem,
+} from "@/components/ui/sidebar";
 
-import { menuRules } from '@/lib/menuRules';
-import { MenuItem } from '@/lib/menuRules';
-import { useSelectedSociety } from '@/store/selected-society';
+import { menuRules } from "@/lib/menuRules";
+import { MenuItem } from "@/lib/menuRules";
 
 export function MainSidebar() {
   const pathname = usePathname();
-  const { society } = useSelectedSociety();
   const params = useParams();
   const societyCode = params.code as string;
 
   const filteredMenuRules = menuRules;
   const isActive = (item: MenuItem) => {
     // Remove society code from pathname for matching
-    const pathWithoutSocietyCode = pathname.replace(`/${societyCode}`, '');
+    const pathWithoutSocietyCode = pathname.replace(`/${societyCode}`, "");
     return item.matchPaths.some((path: string) =>
       pathWithoutSocietyCode.startsWith(path)
     );
@@ -41,7 +39,13 @@ export function MainSidebar() {
       <SidebarHeader className="border-b p-4">
         <Link href="/" className="flex items-center space-x-2">
           <span className="text-2xl font-bold">
-            {society ? society.name : 'Society App'}
+            <div className="relative">
+              <span className="text-2xl font-black bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                SIMBLING
+              </span>
+              <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-blue-600 rounded-full">
+              </div>
+            </div>
           </span>
         </Link>
       </SidebarHeader>
@@ -51,10 +55,10 @@ export function MainSidebar() {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
-                className={cn(isActive(item) && 'bg-muted')}
+                className={cn(isActive(item) && "bg-muted")}
               >
                 <Link
-                  href={'/' + societyCode + item.link}
+                  href={"/" + societyCode + item.link}
                   className="flex items-center"
                 >
                   {item.icon && <item.icon className="mr-2 h-4 w-4" />}
@@ -67,9 +71,9 @@ export function MainSidebar() {
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton
                         asChild
-                        className={cn(isActive(subItem) && 'bg-muted')}
+                        className={cn(isActive(subItem) && "bg-muted")}
                       >
-                        <Link href={'/' + societyCode + subItem.link}>
+                        <Link href={"/" + societyCode + subItem.link}>
                           {subItem.title}
                         </Link>
                       </SidebarMenuSubButton>
