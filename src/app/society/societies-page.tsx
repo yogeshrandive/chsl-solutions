@@ -19,9 +19,5 @@ export default async function SocietiesPageServer({
   const { filter } = await searchParams;
   const societies = await getSocieties(user.id_tenant, filter);
 
-  return (
-    <div className="flex flex-col flex-1 p-10 w-full max-w-[1400px] mx-auto">
-      <SocietiesClientPage societies={societies} filter={filter} />
-    </div>
-  );
+  return <SocietiesClientPage societies={societies} filter={filter} />;
 }

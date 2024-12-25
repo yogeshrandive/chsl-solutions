@@ -19,7 +19,7 @@ export default async function LoginPage() {
             <div className="flex items-center space-x-2 mb-8">
               <div className="relative">
                 <span className="text-5xl font-black bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-                  SIMBLLING
+                  SIMBLING
                 </span>
                 <div className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-600 rounded-full">
                 </div>
@@ -72,7 +72,7 @@ export default async function LoginPage() {
           <div className="lg:hidden text-center mb-8">
             <div className="inline-block">
               <span className="text-4xl font-black bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-                SIMBLLING
+                SIMBLING
               </span>
               <div className="h-1 bg-gradient-to-r from-primary to-blue-600 rounded-full mt-1">
               </div>

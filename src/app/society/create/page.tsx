@@ -1,37 +1,37 @@
-import { CreateSocietyForm } from './create-society-form';
-import { getUserDetails } from '@/lib/dal';
-import { redirect } from 'next/navigation';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { CreateSocietyForm } from "./create-society-form";
+import { getUserDetails } from "@/lib/dal";
+import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  BreadcrumbSeparator,
   BreadcrumbList,
   BreadcrumbPage,
-} from '@/components/ui/breadcrumb';
-import { Slash } from 'lucide-react';
-import { SocietyFormTabs } from './../society-form-tab';
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Slash } from "lucide-react";
+import { SocietyFormTabs } from "./../society-form-tab";
 
 export default async function CreateSocietyPage() {
   const user = await getUserDetails();
 
   if (!user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-6">
-        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
+    <div className="p-8">
+      <div className="">
+        <h1 className="text-2xl font-bold tracking-tight">
           Create New Society
-        </h2>
+        </h1>
       </div>
       <div className="mb-4">
         <Breadcrumb>
           <BreadcrumbList className="flex flex-wrap items-center">
             <BreadcrumbItem>
-              <BreadcrumbLink href="/society" className="text-sm sm:text-base">
+              <BreadcrumbLink href="/" className="text-sm sm:text-base">
                 All Societies
               </BreadcrumbLink>
             </BreadcrumbItem>
