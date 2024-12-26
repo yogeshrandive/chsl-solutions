@@ -1,12 +1,12 @@
-'use client';
-import { useEffect, useActionState, useState } from 'react';
+"use client";
+import { useActionState, useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -15,19 +15,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
-import { formSchema, FormDataInterface } from './definations';
-import { billFrequency } from '@/lib/constants';
-import { createSociety, getStates, getCitiesByState } from './actions';
-import { Textarea } from '@/components/ui/textarea';
-import { DateInput } from '@/components/date-input';
-import moment from 'moment';
-import { getFinancialYearEndDate } from '@/lib/utils';
+import { FormDataInterface, formSchema } from "./definations";
+import { billFrequency } from "@/lib/constants";
+import { createSociety, getCitiesByState, getStates } from "./actions";
+import { Textarea } from "@/components/ui/textarea";
+import { DateInput } from "@/components/date-input";
+import moment from "moment";
+import { getFinancialYearEndDate } from "@/lib/utils";
 
 export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
   const [states, setStates] = useState<{ id: number; name: string }[]>([]);
@@ -38,8 +38,8 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
   }, []);
 
   const handleStateChange = async (stateId: string) => {
-    form.setValue('id_state', parseInt(stateId));
-    form.setValue('id_city', 0); // Reset city when state changes
+    form.setValue("id_state", parseInt(stateId));
+    form.setValue("id_city", 0); // Reset city when state changes
     const citiesData = await getCitiesByState(parseInt(stateId));
     setCities(citiesData);
   };
@@ -47,95 +47,95 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
   const form = useForm<FormDataInterface>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      code: '',
-      name: '',
-      regi_no: '',
-      email: '',
-      phone_number: '',
-      address: '',
-      location: '',
+      code: "",
+      name: "",
+      regi_no: "",
+      email: "",
+      phone_number: "",
+      address: "",
+      location: "",
       pin_code: 0,
       id_state: 0,
       id_city: 0,
       bill_no: 1,
       receipt_no: 1,
-      gst_no: '',
-      pan_no: '',
-      tan_no: '',
-      sac_code: '',
+      gst_no: "",
+      pan_no: "",
+      tan_no: "",
+      sac_code: "",
       bill_frequency: billFrequency[0].value,
-      period_from: moment().format('YYYY-MM-DD'),
-      period_to: getFinancialYearEndDate().format('YYYY-MM-DD'),
-      cur_period_from: moment().format('YYYY-MM-DD'),
+      period_from: moment().format("YYYY-MM-DD"),
+      period_to: getFinancialYearEndDate().format("YYYY-MM-DD"),
+      cur_period_from: moment().format("YYYY-MM-DD"),
       cur_period_to: moment()
-        .add(1, 'month')
-        .subtract(1, 'day')
-        .format('YYYY-MM-DD'),
-      next_bill_date: moment().add(1, 'month').format('YYYY-MM-DD'),
+        .add(1, "month")
+        .subtract(1, "day")
+        .format("YYYY-MM-DD"),
+      next_bill_date: moment().add(1, "month").format("YYYY-MM-DD"),
       bill_lot: 2,
       id_tenant: tenantId,
-      status: 'pending',
+      status: "pending",
       step: 1,
     },
   });
 
   const [formState, createSocietyAction, isPending] = useActionState(
     createSociety,
-    null
+    null,
   );
 
   const { watch, setValue, getValues } = form;
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
-      if (name === 'bill_frequency' || name === 'cur_period_from') {
-        const cuPrtiodFrom = getValues('cur_period_from');
-        const watchBillType = getValues('bill_frequency');
+      if (name === "bill_frequency" || name === "cur_period_from") {
+        const cuPrtiodFrom = getValues("cur_period_from");
+        const watchBillType = getValues("bill_frequency");
 
-        const curPeriodDate = moment(cuPrtiodFrom, 'YYYY-MM-DD');
-        let curPeriodTo = '';
-        let nextBillDate = '';
+        const curPeriodDate = moment(cuPrtiodFrom, "YYYY-MM-DD");
+        let curPeriodTo = "";
+        let nextBillDate = "";
 
         switch (watchBillType) {
-          case 'monthly':
+          case "monthly":
             curPeriodTo = curPeriodDate
-              .add(1, 'month')
-              .subtract(1, 'day')
-              .format('YYYY-MM-DD');
-            nextBillDate = curPeriodDate.add(1, 'day').format('YYYY-MM-DD');
+              .add(1, "month")
+              .subtract(1, "day")
+              .format("YYYY-MM-DD");
+            nextBillDate = curPeriodDate.add(1, "day").format("YYYY-MM-DD");
             break;
-          case 'bi-monthly':
+          case "bi-monthly":
             curPeriodTo = curPeriodDate
-              .add(2, 'month')
-              .subtract(1, 'day')
-              .format('YYYY-MM-DD');
-            nextBillDate = curPeriodDate.add(1, 'day').format('YYYY-MM-DD');
+              .add(2, "month")
+              .subtract(1, "day")
+              .format("YYYY-MM-DD");
+            nextBillDate = curPeriodDate.add(1, "day").format("YYYY-MM-DD");
             break;
-          case 'quarterly':
+          case "quarterly":
             curPeriodTo = curPeriodDate
-              .add(3, 'month')
-              .subtract(1, 'day')
-              .format('YYYY-MM-DD');
-            nextBillDate = curPeriodDate.add(1, 'day').format('YYYY-MM-DD');
+              .add(3, "month")
+              .subtract(1, "day")
+              .format("YYYY-MM-DD");
+            nextBillDate = curPeriodDate.add(1, "day").format("YYYY-MM-DD");
             break;
-          case 'half-yearly':
+          case "half-yearly":
             curPeriodTo = curPeriodDate
-              .add(6, 'month')
-              .subtract(1, 'day')
-              .format('YYYY-MM-DD');
-            nextBillDate = curPeriodDate.add(1, 'day').format('YYYY-MM-DD');
+              .add(6, "month")
+              .subtract(1, "day")
+              .format("YYYY-MM-DD");
+            nextBillDate = curPeriodDate.add(1, "day").format("YYYY-MM-DD");
             break;
-          case 'yearly':
+          case "yearly":
             curPeriodTo = curPeriodDate
-              .add(12, 'month')
-              .subtract(1, 'day')
-              .format('YYYY-MM-DD');
-            nextBillDate = curPeriodDate.add(1, 'day').format('YYYY-MM-DD');
+              .add(12, "month")
+              .subtract(1, "day")
+              .format("YYYY-MM-DD");
+            nextBillDate = curPeriodDate.add(1, "day").format("YYYY-MM-DD");
             break;
         }
 
-        setValue('cur_period_to', curPeriodTo);
-        setValue('next_bill_date', nextBillDate);
+        setValue("cur_period_to", curPeriodTo);
+        setValue("next_bill_date", nextBillDate);
       }
     });
     return () => subscription.unsubscribe();
@@ -143,8 +143,8 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
 
   return (
     <Form {...form}>
-      <form action={createSocietyAction} className="space-y-6 w-full">
-        <input type="hidden" {...form.register('id_tenant')} />
+      <form action={createSocietyAction} className="">
+        <input type="hidden" {...form.register("id_tenant")} />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
           <FormField
             control={form.control}
@@ -159,7 +159,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   This is your unique society code.
                 </FormDescription>
                 <FormMessage>
-                  {formState?.error?.code ? formState?.error?.code : ''}
+                  {formState?.error?.code ? formState?.error?.code : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -174,7 +174,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   <Input {...field} />
                 </FormControl>
                 <FormMessage>
-                  {formState?.error?.name ? formState?.error?.name : ''}
+                  {formState?.error?.name ? formState?.error?.name : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -189,7 +189,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   <Input {...field} />
                 </FormControl>
                 <FormMessage>
-                  {formState?.error?.regi_no ? formState?.error?.regi_no : ''}
+                  {formState?.error?.regi_no ? formState?.error?.regi_no : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -204,7 +204,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   <Input type="email" {...field} />
                 </FormControl>
                 <FormMessage>
-                  {formState?.error?.email ? formState?.error?.email : ''}
+                  {formState?.error?.email ? formState?.error?.email : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -221,7 +221,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                 <FormMessage>
                   {formState?.error?.phone_number
                     ? formState?.error?.phone_number
-                    : ''}
+                    : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -257,7 +257,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   <FormMessage>
                     {formState?.error?.id_state
                       ? formState?.error?.id_state
-                      : ''}
+                      : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -271,7 +271,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   <Select
                     onValueChange={(value) => field.onChange(parseInt(value))}
                     defaultValue={field.value?.toString()}
-                    disabled={!form.getValues('id_state')}
+                    disabled={!form.getValues("id_state")}
                     name="id_city"
                   >
                     <FormControl>
@@ -288,7 +288,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     </SelectContent>
                   </Select>
                   <FormMessage>
-                    {formState?.error?.id_city ? formState?.error?.id_city : ''}
+                    {formState?.error?.id_city ? formState?.error?.id_city : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -305,7 +305,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   <FormMessage>
                     {formState?.error?.pin_code
                       ? formState?.error?.pin_code
-                      : ''}
+                      : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -321,7 +321,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     <Textarea {...field} />
                   </FormControl>
                   <FormMessage>
-                    {formState?.error?.address ? formState?.error?.address : ''}
+                    {formState?.error?.address ? formState?.error?.address : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -338,7 +338,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   <FormMessage>
                     {formState?.error?.location
                       ? formState?.error?.location
-                      : ''}
+                      : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -358,7 +358,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage>
-                    {formState?.error?.gst_no ? formState?.error?.gst_no : ''}
+                    {formState?.error?.gst_no ? formState?.error?.gst_no : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -373,7 +373,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage>
-                    {formState?.error?.pan_no ? formState?.error?.pan_no : ''}
+                    {formState?.error?.pan_no ? formState?.error?.pan_no : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -388,7 +388,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage>
-                    {formState?.error?.tan_no ? formState?.error?.tan_no : ''}
+                    {formState?.error?.tan_no ? formState?.error?.tan_no : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -405,7 +405,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   <FormMessage>
                     {formState?.error?.sac_code
                       ? formState?.error?.sac_code
-                      : ''}
+                      : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -420,7 +420,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     <Input type="number" {...field} />
                   </FormControl>
                   <FormMessage>
-                    {formState?.error?.bill_no ? formState?.error?.bill_no : ''}
+                    {formState?.error?.bill_no ? formState?.error?.bill_no : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -437,7 +437,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                   <FormMessage>
                     {formState?.error?.receipt_no
                       ? formState?.error?.receipt_no
-                      : ''}
+                      : ""}
                   </FormMessage>
                 </FormItem>
               )}
@@ -457,15 +457,14 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     name={field.name}
                     value={field.value}
                     onChange={(date) =>
-                      field.onChange(moment(date).format('YYYY-MM-DD'))
-                    }
+                      field.onChange(moment(date).format("YYYY-MM-DD"))}
                     disabled={field.disabled}
                   />
                 </FormControl>
                 <FormMessage>
                   {formState?.error?.period_from
                     ? formState?.error?.period_from
-                    : ''}
+                    : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -481,15 +480,14 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     name={field.name}
                     value={field.value}
                     onChange={(date) =>
-                      field.onChange(moment(date).format('YYYY-MM-DD'))
-                    }
+                      field.onChange(moment(date).format("YYYY-MM-DD"))}
                     disabled={field.disabled}
                   />
                 </FormControl>
                 <FormMessage>
                   {formState?.error?.period_to
                     ? formState?.error?.period_to
-                    : ''}
+                    : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -521,7 +519,7 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                 <FormMessage>
                   {formState?.error?.bill_frequency
                     ? formState?.error?.bill_frequency
-                    : ''}
+                    : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -540,15 +538,14 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     name={field.name}
                     value={field.value}
                     onChange={(date) =>
-                      field.onChange(moment(date).format('YYYY-MM-DD'))
-                    }
+                      field.onChange(moment(date).format("YYYY-MM-DD"))}
                     disabled={field.disabled}
                   />
                 </FormControl>
                 <FormMessage>
                   {formState?.error?.cur_period_from
                     ? formState?.error?.cur_period_from
-                    : ''}
+                    : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -564,15 +561,14 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     name={field.name}
                     value={field.value}
                     onChange={(date) =>
-                      field.onChange(moment(date).format('YYYY-MM-DD'))
-                    }
+                      field.onChange(moment(date).format("YYYY-MM-DD"))}
                     disabled={field.disabled}
                   />
                 </FormControl>
                 <FormMessage>
                   {formState?.error?.cur_period_to
                     ? formState?.error?.cur_period_to
-                    : ''}
+                    : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -588,15 +584,14 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
                     name={field.name}
                     value={field.value}
                     onChange={(date) =>
-                      field.onChange(moment(date).format('YYYY-MM-DD'))
-                    }
+                      field.onChange(moment(date).format("YYYY-MM-DD"))}
                     disabled={field.disabled}
                   />
                 </FormControl>
                 <FormMessage>
                   {formState?.error?.next_bill_date
                     ? formState?.error?.next_bill_date
-                    : ''}
+                    : ""}
                 </FormMessage>
               </FormItem>
             )}
@@ -604,12 +599,12 @@ export function CreateSocietyForm({ tenantId }: { tenantId: number }) {
         </div>
 
         <FormMessage className="mt-4">
-          {formState?.error_message ? formState?.error_message : ''}
+          {formState?.error_message ? formState?.error_message : ""}
         </FormMessage>
 
         <div className="flex justify-end">
           <Button type="submit" disabled={isPending}>
-            {isPending ? 'Creating...' : 'Create Society'}
+            {isPending ? "Creating..." : "Create Society"}
           </Button>
         </div>
       </form>

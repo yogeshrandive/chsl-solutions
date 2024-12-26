@@ -24,14 +24,17 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { login } from "./actions";
 import { LoginFormSchema } from "./definitions";
-import { useState } from "react";
+// import { useState } from "react";
 import { Loader2, Lock, Mail } from "lucide-react";
 
 type FormValues = z.infer<typeof LoginFormSchema>;
 
 export default function LoginForm() {
-  const [formState, formAction] = useActionState(login, undefined);
-  const [isLoading, setIsLoading] = useState(false);
+  const [formState, formAction, isFormLoading] = useActionState(
+    login,
+    undefined,
+  );
+  // const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(LoginFormSchema),
@@ -41,11 +44,11 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = async (data: FormData) => {
-    setIsLoading(true);
-    await formAction(data);
-    setIsLoading(false);
-  };
+  // const onSubmit = async (data: FormData) => {
+  //   setIsLoading(true);
+  //   await formAction(data);
+  //   setIsLoading(false);
+  // };
 
   return (
     <Card className="w-full h-full border-0 shadow-lg bg-white/90 backdrop-blur-sm flex flex-col justify-center">
@@ -64,9 +67,9 @@ export default function LoginForm() {
           </Alert>
         )}
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-center">
+      <CardContent className="flex flex-col justify-center">
         <Form {...form}>
-          <form action={onSubmit} className="space-y-8">
+          <form action={formAction} className="space-y-8">
             <FormField
               control={form.control}
               name="email"
@@ -83,12 +86,14 @@ export default function LoginForm() {
                           type="email"
                           placeholder="user@company.com"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isFormLoading}
                           className="pl-10 h-12 text-base bg-white border-gray-200 focus:border-primary"
                         />
                       </div>
                     </FormControl>
-                    <FormMessage className="text-xs mt-1" />
+                    <FormMessage className="text-xs mt-1">
+                      {formState?.errors?.email?.[0]}
+                    </FormMessage>
                   </div>
                 </FormItem>
               )}
@@ -107,13 +112,16 @@ export default function LoginForm() {
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <Input
                           type="password"
+                          placeholder="********"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isFormLoading}
                           className="pl-10 h-12 text-base bg-white border-gray-200 focus:border-primary"
                         />
                       </div>
                     </FormControl>
-                    <FormMessage className="text-xs mt-1" />
+                    <FormMessage className="text-xs mt-1">
+                      {formState?.errors?.password?.[0]}
+                    </FormMessage>
                   </div>
                 </FormItem>
               )}
@@ -121,18 +129,11 @@ export default function LoginForm() {
             <Button
               type="submit"
               className="w-full h-12 text-base font-medium bg-primary hover:bg-primary/90 transition-all"
-              disabled={isLoading}
+              disabled={isFormLoading}
             >
-              {isLoading
-                ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Signing in...
-                  </>
-                )
-                : (
-                  "Sign in"
-                )}
+              {isFormLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                "Sign in"
+              )}
             </Button>
           </form>
         </Form>

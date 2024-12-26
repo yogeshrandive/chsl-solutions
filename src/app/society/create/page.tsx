@@ -50,7 +50,7 @@ export default async function CreateSocietyPage() {
         <CardHeader className="p-4 sm:p-6">
           <SocietyFormTabs currentStep={1} formStep={1} />
         </CardHeader>
-        <CardContent className="p-4 sm:p-6">
+        <CardContent className="">
           <div className="w-full max-w-4xl mx-auto">
             <CreateSocietyForm tenantId={user.id_tenant} />
           </div>
