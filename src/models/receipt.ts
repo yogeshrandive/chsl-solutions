@@ -67,7 +67,20 @@ export async function getReceiptById(id: string) {
 
 export async function createReceiptInDb(
     data: TablesInsert<"receipts">,
-    memberBill: Tables<"member_bills">,
+    memberBill: Tables<"member_bills"> & {
+        society_bills: {
+            bill_frequency: string;
+            bill_date: string;
+            due_date: string;
+            bill_lot: string;
+            interest_period: string;
+            credit_adj_first: boolean;
+            bill_period_from: string;
+            bill_period_to: string;
+            interest_rate: number;
+            interest_type: string;
+        };
+    },
     societyCode: string,
 ) {
     const supabase = await createClient();
@@ -75,6 +88,7 @@ export async function createReceiptInDb(
     // Check if receipt date is before or equal to bill due date using moment
     const receiptDate = moment(data.receipt_date);
     const billDueDate = moment(memberBill.due_date);
+    const billStartDate = moment(memberBill.society_bills.bill_period_from);
 
     // Initialize payment_made object if it doesn't exist
     const currentPaymentMade = memberBill.payment_made || {
@@ -97,11 +111,40 @@ export async function createReceiptInDb(
         };
     }
 
+    /** Calculate the interest amount for the bill if the interest period is daily */
+    let billInterestAmount = memberBill.interest_amount || 0;
+
+    if (memberBill.society_bills.interest_period === "daily") {
+        let interestCalculationAmount = 0;
+        if (memberBill.society_bills.interest_type === "simple") {
+            interestCalculationAmount = memberBill.principle_arrears;
+        } else {
+            interestCalculationAmount = memberBill.principle_arrears +
+                memberBill.interest_arrears;
+        }
+
+        if (interestCalculationAmount > 0) {
+            const dueDays = receiptDate.diff(billStartDate, "days") + 1;
+            console.log("dueDays", dueDays);
+            console.log("receiptDate", receiptDate);
+            console.log("billStartDate", billStartDate);
+            const dailyInterest = (interestCalculationAmount *
+                (memberBill.society_bills.interest_rate / 100)) / 365;
+            const interestAmount = parseFloat(
+                (dueDays * dailyInterest).toFixed(2),
+            );
+            billInterestAmount = parseFloat(
+                (interestAmount + billInterestAmount).toFixed(2),
+            );
+        }
+    }
+
     // Update member bill with new payment info
     const { error: billError } = await supabase
         .from("member_bills")
         .update({
             payment_made: memberBill.payment_made,
+            interest_amount: billInterestAmount,
         })
         .eq("id", memberBill.id);
 

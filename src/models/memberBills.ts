@@ -6,7 +6,7 @@ export async function getMemberBillsByMemberId(memberId: number) {
     const supabase = await createClient();
     const { data, error } = await supabase
         .from("member_bills")
-        .select(`*, society_bills(*)`)
+        .select(`*, society_bills(*), receipts(*)`)
         .eq("id_member", memberId)
         .order("created_at", { ascending: false });
 

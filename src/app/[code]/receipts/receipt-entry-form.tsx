@@ -97,7 +97,15 @@ export default function ReceiptEntryForm({
                 bill_lot: string;
                 interest_period: string;
                 credit_adj_first: boolean;
+                bill_period_from: string;
+                bill_period_to: string;
+                interest_rate: number;
+                interest_type: string;
             };
+            receipts: {
+                receipt_date: string;
+                amount: number;
+            }[];
         }) | null
     >(null);
 
@@ -167,7 +175,6 @@ export default function ReceiptEntryForm({
         try {
             if (member) {
                 const response = await getMemberBillsByMemberId(member?.id);
-                console.log(response);
                 if (response) {
                     setBillDetails(response as any);
                 }
@@ -570,62 +577,124 @@ export default function ReceiptEntryForm({
 
                                 {/* Bill Amount Details */}
                                 {billDetails && (
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center text-sm py-1">
-                                            <span className="text-muted-foreground">
-                                                Bill Amount
-                                            </span>
-                                            <span className="font-medium">
-                                                {formatCurrency(
-                                                    billDetails
-                                                        .bill_amount,
-                                                )}
-                                            </span>
+                                    <div className="space-y-6">
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between items-center text-sm py-1">
+                                                <span className="text-muted-foreground">
+                                                    Bill Amount
+                                                </span>
+                                                <span className="font-medium">
+                                                    {formatCurrency(
+                                                        billDetails.bill_amount,
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm py-1">
+                                                <span className="text-muted-foreground">
+                                                    Principle Arrears
+                                                </span>
+                                                <span className="font-medium">
+                                                    {formatCurrency(
+                                                        billDetails
+                                                            .principle_arrears,
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm py-1">
+                                                <span className="text-muted-foreground">
+                                                    Interest Arrears
+                                                </span>
+                                                <span className="font-medium">
+                                                    {formatCurrency(
+                                                        billDetails
+                                                            .interest_arrears,
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm py-1">
+                                                <span className="text-muted-foreground">
+                                                    Interest
+                                                </span>
+                                                <span className="font-medium">
+                                                    {formatCurrency(
+                                                        billDetails
+                                                            .interest_amount,
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm py-1">
+                                                <span className="text-muted-foreground">
+                                                    Total Bill Amount
+                                                </span>
+                                                <span className="font-medium">
+                                                    {formatCurrency(
+                                                        billDetails
+                                                            .total_bill_amount,
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <Separator />
                                         </div>
-                                        <div className="flex justify-between items-center text-sm py-1">
-                                            <span className="text-muted-foreground">
-                                                Principle Arrears
-                                            </span>
-                                            <span className="font-medium">
-                                                {formatCurrency(
-                                                    billDetails
-                                                        .principle_arrears,
+
+                                        <div className="space-y-2">
+                                            <h4 className="text-sm font-medium">
+                                                Payment History
+                                            </h4>
+                                            {billDetails.receipts.length > 0
+                                                ? (
+                                                    <div className="space-y-2">
+                                                        {billDetails.receipts
+                                                            .map((
+                                                                receipt,
+                                                                index,
+                                                            ) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className="flex justify-between items-center text-sm py-1 bg-muted/50 px-3 rounded-md"
+                                                                >
+                                                                    <div className="space-y-1">
+                                                                        <span className="text-muted-foreground">
+                                                                            {formatDate(
+                                                                                receipt
+                                                                                    .receipt_date,
+                                                                            )}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span className="font-medium">
+                                                                        {formatCurrency(
+                                                                            receipt
+                                                                                .amount,
+                                                                        )}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        <div className="flex justify-between items-center text-sm pt-2">
+                                                            <span className="font-medium">
+                                                                Total Paid
+                                                            </span>
+                                                            <span className="font-medium">
+                                                                {formatCurrency(
+                                                                    billDetails
+                                                                        .receipts
+                                                                        .reduce(
+                                                                            (
+                                                                                sum,
+                                                                                receipt,
+                                                                            ) => sum +
+                                                                                receipt
+                                                                                    .amount,
+                                                                            0,
+                                                                        ),
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )
+                                                : (
+                                                    <div className="text-sm text-muted-foreground py-2">
+                                                        No payments recorded
+                                                    </div>
                                                 )}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center text-sm py-1">
-                                            <span className="text-muted-foreground">
-                                                Interest Arrears
-                                            </span>
-                                            <span className="font-medium">
-                                                {formatCurrency(
-                                                    billDetails
-                                                        .interest_arrears,
-                                                )}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center text-sm py-1">
-                                            <span className="text-muted-foreground">
-                                                Interest
-                                            </span>
-                                            <span className="font-medium">
-                                                {formatCurrency(
-                                                    billDetails
-                                                        .interest_amount,
-                                                )}
-                                            </span>
-                                        </div>
-                                        <Separator className="my-2" />
-                                        <div className="flex justify-between items-center py-1">
-                                            <span className="font-medium">
-                                                Total Due
-                                            </span>
-                                            <span className="font-bold text-lg">
-                                                {formatCurrency(
-                                                    billDetails
-                                                        .total_bill_amount,
-                                                )}
-                                            </span>
                                         </div>
                                     </div>
                                 )}

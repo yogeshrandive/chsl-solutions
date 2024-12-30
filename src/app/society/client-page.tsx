@@ -24,6 +24,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SocietiesClientPage({
   societies,
@@ -33,7 +34,9 @@ export default function SocietiesClientPage({
   filter: string | undefined;
 }) {
   const [isNavigating, setIsNavigating] = useState(false);
+  const [managingId, setManagingId] = useState<number | null>(null);
   const [filteredSocieties, setFilteredSocieties] = useState(societies);
+  const router = useRouter();
 
   const handleSearch = useDebouncedCallback((searchTerm: string) => {
     if (!searchTerm.trim()) {
@@ -56,6 +59,19 @@ export default function SocietiesClientPage({
 
   const handleCreateClick = () => {
     setIsNavigating(true);
+  };
+
+  const handleManageClick = async (society: Society) => {
+    setManagingId(society.id);
+    const path = society.status.toLowerCase() === "active"
+      ? `/${society.code}/dashboard`
+      : `/${society.code}/info/step${society.step}`;
+
+    try {
+      await router.push(path);
+    } finally {
+      setManagingId(null);
+    }
   };
 
   const CreateButton = () => (
@@ -171,16 +187,28 @@ export default function SocietiesClientPage({
                       <StatusBadge status={society.status} />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Link
-                        href={society.status.toLowerCase() === "active"
-                          ? `/${society.code}/dashboard`
-                          : `/${society.code}/info/step${society.step}`}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={managingId === society.id}
+                        onClick={() =>
+                          handleManageClick(society)}
+                        className="w-24"
                       >
-                        <>
-                          <Settings className="h-4 w-4 mr-2" />
-                          Manage
-                        </>
-                      </Link>
+                        {managingId === society.id
+                          ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Loading...
+                            </>
+                          )
+                          : (
+                            <>
+                              <Settings className="h-4 w-4 mr-2" />
+                              Manage
+                            </>
+                          )}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))

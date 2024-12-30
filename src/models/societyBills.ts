@@ -101,6 +101,27 @@ export async function getMemberBillsByBillId(billId: number) {
   }));
 }
 
+export async function getBillRegisterByBillId(billId: number) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("member_bills")
+    .select(`
+      *,
+      members (full_name, flat_no),
+      member_bill_headings (*, society_account_master (code, name)),
+      receipts (id, receipt_date, amount)
+    `)
+    .eq("id_society_bill", billId)
+    .order("bill_no");
+
+  if (error) throw error;
+  return data.map((bill) => ({
+    ...bill,
+    member_name: bill.members?.full_name,
+    flat_no: bill.members?.flat_no,
+  }));
+}
+
 export async function getBillHeadingsById(billId: number) {
   const supabase = await createClient();
   const { data, error } = await supabase

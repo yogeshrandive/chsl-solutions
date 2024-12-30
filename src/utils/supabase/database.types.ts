@@ -133,6 +133,7 @@ export type Database = {
           created_at: string;
           gst_amount: number;
           id: number;
+          id_account_master: number | null;
           id_member: number;
           id_member_bill: number;
           id_society_heading: number;
@@ -144,6 +145,7 @@ export type Database = {
           created_at?: string;
           gst_amount?: number;
           id?: number;
+          id_account_master?: number | null;
           id_member: number;
           id_member_bill: number;
           id_society_heading: number;
@@ -155,6 +157,7 @@ export type Database = {
           created_at?: string;
           gst_amount?: number;
           id?: number;
+          id_account_master?: number | null;
           id_member?: number;
           id_member_bill?: number;
           id_society_heading?: number;
@@ -162,6 +165,13 @@ export type Database = {
           interest_amount?: number;
         };
         Relationships: [
+          {
+            foreignKeyName: "member_bill_headings_id_account_master_fkey";
+            columns: ["id_account_master"];
+            isOneToOne: false;
+            referencedRelation: "society_account_master";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "member_bill_headings_id_member_bill_fkey";
             columns: ["id_member_bill"];
@@ -227,7 +237,7 @@ export type Database = {
           id_tenant: number;
           interest_amount?: number;
           interest_arrears?: number;
-          payment_made?: Json | null;
+          payment_made?: Json | null | any;
           principle_arrears?: number;
           status?: string | null;
           total_bill_amount?: number;
@@ -247,7 +257,7 @@ export type Database = {
           id_tenant?: number;
           interest_amount?: number;
           interest_arrears?: number;
-          payment_made?: Json | null;
+          payment_made?: Json | null | any;
           principle_arrears?: number;
           status?: string | null;
           total_bill_amount?: number;

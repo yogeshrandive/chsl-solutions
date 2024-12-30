@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
 import { getUserDetails } from "@/lib/dal";
 import { getSocietyByCode } from "@/models/society";
-import { getBillById, getMemberBillsByBillId } from "@/models/societyBills";
+import {
+    getBillById,
+    getBillRegisterByBillId,
+    // getMemberBillsByBillId,
+} from "@/models/societyBills";
 import BillDetailsPage from "./bill-details-page";
+import { BillRegister } from "./member-bills-table";
 
 interface PageProps {
     params: Promise<{
@@ -26,13 +31,14 @@ export default async function BillDetailsPageServer({
     const billDetails = await getBillById(parseInt(id));
     if (!billDetails) redirect(`/${code}/bills`);
 
-    const memberBills = await getMemberBillsByBillId(parseInt(id));
+    // const memberBills = await getMemberBillsByBillId(parseInt(id));
+    const billRegister = await getBillRegisterByBillId(parseInt(id));
 
     return (
         <BillDetailsPage
             societyData={societyData}
             billDetails={billDetails}
-            memberBills={memberBills}
+            billRegister={billRegister as unknown as BillRegister[]}
         />
     );
 }

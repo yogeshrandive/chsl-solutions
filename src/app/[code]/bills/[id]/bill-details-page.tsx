@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,17 +5,18 @@ import { formatDate, formatDateRange } from "@/lib/utils";
 import { Tables } from "@/utils/supabase/database.types";
 import { MemberBillsTable } from "./member-bills-table";
 import { Badge } from "@/components/ui/badge";
+import { BillRegister } from "./member-bills-table";
 
 interface BillDetailsPageProps {
     societyData: Tables<"societies">;
     billDetails: Tables<"society_bills">;
-    memberBills: Tables<"member_bills">[];
+    billRegister: BillRegister[];
 }
 
 export default function BillDetailsPage({
-    societyData,
+    // societyData,
     billDetails,
-    memberBills,
+    billRegister,
 }: BillDetailsPageProps) {
     const getBadgeVariant = (status: string) => {
         switch (status.toLowerCase()) {
@@ -34,7 +34,7 @@ export default function BillDetailsPage({
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Bill Details</h1>
+                <h1 className="text-3xl font-bold">Bill Register</h1>
                 <Badge variant={getBadgeVariant(billDetails.status)}>
                     {billDetails.status}
                 </Badge>
@@ -79,6 +79,18 @@ export default function BillDetailsPage({
                                     billDetails.bill_period_to,
                                 )}
                             </p>
+                            <p>
+                                <span className="text-muted-foreground">
+                                    Bill Frequency:
+                                </span>{" "}
+                                {billDetails.bill_frequency}
+                            </p>
+                            <p>
+                                <span className="text-muted-foreground">
+                                    Interest Calculation:
+                                </span>{" "}
+                                {billDetails.interest_type}
+                            </p>
                         </div>
 
                         <div className="space-y-2">
@@ -105,10 +117,9 @@ export default function BillDetailsPage({
             </Card>
 
             <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Member Bills</h2>
+                {/* <h2 className="text-xl font-semibold">Member Bills</h2> */}
                 <MemberBillsTable
-                    memberBills={memberBills as any}
-                    societyCode={societyData.code}
+                    billRegisters={billRegister as unknown as BillRegister[]}
                 />
             </div>
         </div>

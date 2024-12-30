@@ -101,8 +101,6 @@ async function processSocietyBill(
     `)
     .eq("id_society", society.id);
 
-  console.log("members:", members);
-
   if (membersError) {
     throw new Error(`Error fetching members: ${membersError.message}`);
   }

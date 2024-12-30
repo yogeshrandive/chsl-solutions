@@ -14,6 +14,8 @@ import { Eye, FileEdit } from "lucide-react";
 import Link from "next/link";
 import { formatDate, formatDateRange } from "@/lib/utils";
 import { Tables } from "@/utils/supabase/database.types";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface BillsTableProps {
   bills: Tables<"society_bills">[];
@@ -22,6 +24,30 @@ interface BillsTableProps {
 }
 
 export function BillsTable({ bills, societyCode }: BillsTableProps) {
+  const router = useRouter();
+
+  // Check if any bill has pending status
+  const hasPendingBills = bills.some((bill) =>
+    bill.status.toLowerCase() === "pending"
+  );
+
+  // Set up auto-refresh if there are pending bills
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval>;
+
+    if (hasPendingBills) {
+      intervalId = setInterval(() => {
+        router.refresh();
+      }, 2000);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [hasPendingBills, router]);
+
   const getBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
       case "published":
@@ -30,6 +56,8 @@ export function BillsTable({ bills, societyCode }: BillsTableProps) {
         return "secondary";
       case "cancelled":
         return "destructive";
+      case "pending":
+        return "warning";
       default:
         return "outline";
     }
@@ -63,7 +91,13 @@ export function BillsTable({ bills, societyCode }: BillsTableProps) {
                 </TableCell>
                 <TableCell>{formatDate(bill.due_date)}</TableCell>
                 <TableCell>
-                  <Badge variant={getBadgeVariant(bill.status)}>
+                  <Badge
+                    variant={getBadgeVariant(bill.status) as
+                      | "default"
+                      | "secondary"
+                      | "destructive"
+                      | "outline"}
+                  >
                     {bill.status}
                   </Badge>
                 </TableCell>
